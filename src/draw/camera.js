@@ -40,11 +40,6 @@ class Camera {
                 }
                 this.rotate(parseInt(angle));
                 lastAngle = angle;
-                // camera.sceneFunc(function(ctx) {
-                //     ctx.rotate(rolation * Math.PI / 180 - parseInt(angle));
-                //     ctx.translate(-imgW / 2, -imgH / 2 - rolation);
-                //     ctx.drawImage(imageObj, 0, rolation);
-                // });
             }
         });
 
