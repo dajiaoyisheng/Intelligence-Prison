@@ -6,7 +6,8 @@ const store = new Vuex.Store({
   state: {
     loading: false,
     isFullNavWrap: false,
-    env: ""
+    env: "",
+    loginLayer: false
   },
   mutations: {
     env(state) {

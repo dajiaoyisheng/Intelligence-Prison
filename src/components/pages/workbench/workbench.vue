@@ -32,7 +32,7 @@
         </section>
         <section class="item item-pics">
           <div class="picS" :class="{'curImageLayer' : key==0}" v-for="(item, key) in picItems" :key="key" @click="displayBImg(item.pic, $event)">
-            <img :src="item.pic">
+            <img src="@/assets/area1.png">
           </div>
           <div class="page">
             <div class="el-pagination-wrap">
@@ -67,7 +67,7 @@
         </section>
         <section class="item item-displayPic-r">
           <div class="curDisplayPic">
-            <img :src="imgBlock">
+            <img src="@/assets/area1.png">
           </div>
         </section>
       </section>
@@ -97,7 +97,7 @@
           }
         },
         pieExtend: {},
-        picItems: [],
+        picItems: [{'priCode': '1'}, {'priCode': '2'}, {'priCode': '2'}, {'priCode': '2'}, {'priCode': '2'}, {'priCode': '2'}],
         pStatus: [],
         imgBlock: '',
         count: 0
@@ -146,12 +146,7 @@
       },
       /** 获取监区平面图数据 */
       getPictureList: function() {
-        this.$get(this.urlconfig.wkGetPictureList).then((res) => {
-          if (res.status === 0) {
-            this.picItems = res.data;
-            this.imgBlock = this.picItems[0].pic;
-          }
-        })
+        // TODO:有待补充
       },
       /** 获取人员分类 */ 
       getPClass: function() {

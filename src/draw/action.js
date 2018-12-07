@@ -1,178 +1,187 @@
-import UUID from 'node-uuid';
-import Konva from 'konva';
-import Layer from './layer';
+import camera from './camera';
+import { gojs, DragCreatingTool } from './dragCreatingTool';
 
-let self = {};
 export default class Action {
+    //构造函数
     constructor(canvasId, width, height, clickCallback, mouseoverCallback, mouseupCallback) {
-        this.uuid = UUID.v4();
-        this.stage = new Konva.Stage({
-            container: canvasId,
-            width: width,
-            height: height
-        });
-        this.canvasId = canvasId;
         this.width = width;
         this.height = height;
-        this.layer = new Layer(this.width, this.height);
-        this.stage.add(this.layer);
 
-        this.clickCallback = clickCallback;
-        this.mouseupCallback = mouseupCallback;
-        this.mouseoverCallback = mouseoverCallback;
-
-        this.mouseStart = this.mouseEnd = {
-            x: 0,
-            y: 0
-        };
-        this.drawing = false;
-        this.shape = {
-            "control": true,
-            "grid": true,
-            "lineWidth": "1",
-            "strokeStyle": "#00BFF3", //线颜色
-            "fillStyle": "#FFFFFF", //填充颜色
-            "type": "rect",
-            "isFill": true
-        };
-        //撤销重做相关
-        this.cPushArray = [];
-        this.cStep = -1;
-        self = this;
-    };
-
-    setShape(lineWidth, strokeStyle, type, fillStyle) {
-        self.shape.lineWidth = lineWidth || self.shape.lineWidth;
-        self.shape.strokeStyle = strokeStyle || self.shape.strokeStyle;
-        self.shape.fillStyle = fillStyle || self.shape.fillStyle;
-        self.shape.type = type || self.shape.type;
-        self.layer.disableShapeDrap();
-    };
-
-    //设置当前绘制状态
-    setDrawState(state) {
-        self.drawing = state;
-    };
-
-    //显示蒙层
-    showMask() {
-        self.layer.showMask();
-    };
-
-    //鼠标放下
-    mouseDown() {
-        if (self.drawing) {
-            self.mouseStart = self.stage.getPointerPosition();
-            self.shape.x = self.mouseStart.x;
-            self.shape.y = self.mouseStart.y;
-            self.uuid = self.shape.uuid = UUID.v4();
-            //绘制图形，并绑定事件
-            self.layer.renderShape(self.shape.type, self.shape).on('click', self.clickCallback).on('mouseover', self.mouseoverCallback);
-
-            self.stage.on('contentMousemove', self.mouseMove);
-            self.stage.on('contentMouseup', self.mouseUp);
-        }
-    };
-
-    mouseMove() {
-        if (self.drawing) {
-            self.mouseEnd = self.stage.getPointerPosition();
-            self.layer.updateShapeByUUID(self.uuid, self.shape.type, self.mouseStart, self.mouseEnd);
-        }
-    };
-
-    mouseUp() {
-        self.setDrawState(false);
-        self.layer.hideMask();
-        self.layer.finished(self.uuid, self.shape.type); //禁止调整大小和移动
-        self.stage.off('contentMousedown');
-        self.stage.off('contentMousemove');
-        self.stage.off('contentMouseup');
-        self.mouseupCallback && self.mouseupCallback(self.uuid);
-        self.cPush();
-    };
-
-    addText(text, uuid, x, y, stageTop, stageLeft) {
-        self.layer.addText({
-            x: x,
-            y: y,
-            text: text,
-            uuid: uuid,
-            stageTop: stageTop,
-            stageLeft: stageLeft
-        });
-        self.layer.draw();
-    };
-
-    //绘制摄像头
-    drawCamera(shape) {
-        self.layer.drawCamera(shape);
-        self.layer.draw();
-    };
-
-    //重绘
-    redraw() {
-        self.layer.draw();
-    };
-
-    //通过图形uuid获得图形
-    getShapeByUUID(uuid, type) {
-        return self.layer.getShapeByUUID(uuid, type);
-    };
-
-    //撤销重做相关操作
-    cPush() {
-        self.cStep++;
-        if (self.cStep < self.cPushArray.length) {
-            self.cPushArray.length = self.cStep;
-        }
-        self.cPushArray.push(self.stage.toJSON());
-    };
-
-    //重做
-    cUndo() {
-        if (self.cStep > 0) {
-            let json = self.cPushArray[--self.cStep];
-            self.loadFromJson(json);
-        }
-    };
-
-    //撤销
-    cRedo() {
-        if (self.cStep < self.cPushArray.length - 1) {
-            let json = self.cPushArray[++self.cStep];
-            self.loadFromJson(json);
-        }
-    };
-
-    //将舞台保存为 JSON 字符串
-    toJSON() {
-        return self.stage.toJSON();
-    };
-
-    //从导出的序列化json中加载
-    loadFromJson(json) {
-        try {
-            let stageObj = JSON.parse(json);
-            let stageChildren = stageObj.children;
-            if (stageObj.className == 'Stage' && stageChildren) {
-                let layer = stageChildren[0];
-                if (layer) {
-                    // self.stage.destroyChildren();
-                    self.layer = new Layer(self.width, self.height);
-                    //self.stage.add(self.layer);
-                    console.log(self.stage.getLayers());
-                    self.layer.draw();
-                    self.stage.draw();
+        this.$ = gojs.GraphObject.make;
+        this.shape = new gojs.Shape();
+        //这是为绘制矩形和椭圆而做的，具体参考https://gojs.net/latest/extensions/DragCreating.html
+        this.nodeTemplate = this.$(gojs.Node, "Auto", {
+                movable: false, //禁止移动
+                resizable: true, //可以调整大小
+                minSize: new gojs.Size(0, 0),
+                selectionObjectName: "BODY"
+            },
+            new gojs.Binding("desiredSize", "size", gojs.Size.parse).makeTwoWay(gojs.Size.stringify),
+            new gojs.Binding("position", "pos", gojs.Point.parse).makeTwoWay(gojs.Point.stringify),
+            this.shape,
+            this.$(gojs.TextBlock, { margin: 2 }, new gojs.Binding("text", "text")), {
+                mouseEnter: function(e, obj, prev) {
+                    mouseoverCallback && mouseoverCallback(e, obj, prev);
                 }
             }
-        } catch (error) {
-            console.log(error);
+        );
+
+        this.diagram = this.$(gojs.Diagram, canvasId, {
+            //以下三行防止出现动态滚动条
+            autoScrollRegion: 0,
+            hasVerticalScrollbar: false,
+            hasHorizontalScrollbar: false,
+            //启用撤销重做快捷键
+            "undoManager.isEnabled": true,
+            //禁止动画效果
+            "animationManager.isEnabled": false,
+            //鼠标滚轮事件禁止
+            "toolManager.mouseWheelBehavior": go.ToolManager.WheelNone,
+            nodeTemplate: this.nodeTemplate,
+        });
+
+        //监听选中的图形的移动事件
+        this.diagram.addDiagramListener("SelectionMoved",
+            function(e) {
+                let it = e.subject.iterator;
+                it.next();
+                let isPart = it.value instanceof gojs.Part;
+                let part = isPart ? it.value : it;
+                console.log(part);
+                let data = isPart ? part.data : part.value;
+                console.log(data);
+                let position = part.position;
+                let x = position.x;
+                let y = position.y;
+                part.position.x = 100;
+                part.position.y = 100;
+                console.log(data);
+
+                //限制摄像头的移动范围
+                let RangelimitForCamera = function() {
+
+                }
+
+                //限制图形的移动范围
+                let RangelimitForRect = function(part) {
+                    let partHeight = part.height;
+                    let partWidth = part.width;
+                    let diagramSize = part.diagram.viewportBounds.size;
+                    let diagramHeight = diagramSize.height;
+                    let diagramWidth = diagramSize.width;
+
+                    let limitHeight = diagramHeight - partHeight - 2;
+                    let limitWidth = diagramWidth - partWidth - 2;
+                    let newPosition = position;
+                    if (x < 0) {
+                        newPosition.x = 0;
+                    }
+
+                    if (y < 0) {
+                        newPosition.y = 0;
+                    }
+
+                    if (x > limitWidth) {
+                        newPosition.x = limitWidth;
+                    }
+
+                    if (y > limitHeight) {
+                        newPosition.y = limitHeight;
+                    }
+
+                    part.diagram.model.setDataProperty(data, 'pos', Object.values(newPosition).join(" "));
+                }
+
+                //RangelimitForRect(part);
+            }
+        );
+
+        //底图
+        this.background_picture = new gojs.Picture();
+
+        //绑定底图
+        this.background = this.$(gojs.Part, // 这个part没有绑定任何model数据
+            {
+                layerName: "Background",
+                position: new gojs.Point(0, 0),
+                selectable: false,
+                pickable: false
+            },
+            this.background_picture
+        );
+
+        this.diagram.add(this.background);
+        this.init();
+    };
+
+    //添加摄像头
+    addCamera(rectuuid) {
+        this.diagram.add(new camera(rectuuid));
+    }
+
+    //设置线条颜色
+    setShape(stroke, figure, fill) {
+        this.shape.stroke = stroke || this.shape.stroke;
+        this.shape.fill = fill || "#FFFFFF";
+        this.shape.figure = figure || this.shape.figure;
+    };
+
+    //设置底图，这里使用的是base64编码
+    setBackgroundPicture(source) {
+        this.background_picture.source = source;
+        this.background_picture.width = this.width;
+        this.background_picture.height = this.height;
+    };
+
+    //通过hashid更新图形信息
+    updatePropertieByHashid(hashid, name, value) {
+        let selection = this.diagram.selection;
+        let it = selection.iterator;
+        for (let i = 0; i < selection.count; i++) {
+            it.next();
+            var isPart = it.value instanceof gojs.Part;
+            var data = isPart ? it.value.data : it.value;
+            if (data.__gohashid == hashid) {
+                this.diagram.model.setDataProperty(data, name, value);
+                break;
+            }
         }
     };
 
+
     init() {
-        self.stage.on('contentMousedown', self.mouseDown);
-        self.cPush();
+        this.shape.stroke = "#00BFF3"; //线颜色
+        this.shape.fill = "#FFFFFF"; //填充颜色
+
+        this.background_picture.source = "";
+        this.background_picture.width = this.width;
+        this.background_picture.height = this.height;
+
+        let background_picture = this.background_picture;
+
+        //初始化绘制矩形和椭圆的工作
+        this.diagram.toolManager.mouseMoveTools.insertAt(2,
+            this.$(DragCreatingTool, {
+                isEnabled: true,
+                delay: 0,
+                box: this.$(gojs.Part, {
+                        layerName: "Tool"
+                    },
+                    this.$(gojs.Shape, {
+                        name: "SHAPE",
+                        fill: null,
+                        stroke: "cyan",
+                        strokeWidth: 2
+                    })
+                ),
+                archetypeNodeData: {
+                    text: "请从右侧拖拽对象进行关联"
+                },
+                //这里可以做一些有意思的操作
+                insertPart: function(bounds) {
+                    return DragCreatingTool.prototype.insertPart.call(this, bounds, background_picture);
+                }
+            })
+        );
     }
 };

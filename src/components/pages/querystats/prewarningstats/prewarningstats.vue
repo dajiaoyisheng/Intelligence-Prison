@@ -138,7 +138,7 @@
           series: [{
             name: '预警次数',
             type: 'bar',
-            barWidth: '60%',
+            barWidth: 20,
             data: [],
             itemStyle: {
               normal: {
@@ -188,7 +188,7 @@
           series: [{
             name: '预警次数',
             type: 'bar',
-            barWidth: '60%',
+            barWidth: 20,
             data: [],
             itemStyle: {
               normal: {
@@ -235,6 +235,7 @@
             this.areas = res.data;
             if ((this.areas != null) && (this.areas.length > 0)) {
               this.parameter.area = this.areas[0].priCode;
+              this.queryStatistics();
             }
           }
         }).catch((error) => {
@@ -289,7 +290,6 @@
     mounted() {
       this.getAllPeriodTypes();
       this.getPrisonDatas();
-      this.queryStatistics();
     }
   }
 </script>

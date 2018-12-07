@@ -74,7 +74,9 @@
             </div>
             <div>
               <span>刑期:</span>
-              <el-input size="small" v-model="baseInfo.criPrisonterm" placeholder="请输入内容"></el-input>
+              <el-input size="small" v-model="baseInfo.criPrisonterm" placeholder="请输入内容">
+                <template slot="append">个月</template>
+              </el-input>
             </div>
             <div>
               <span>开始服刑时间:</span>
@@ -166,9 +168,9 @@
                 <section class="filter-wrap">
                   <span class="block">
                     <span class="demonstration">时间</span>
-                    <el-date-picker size="mini" v-model="params.starttime" type="datetime" placeholder="选择开始时间"></el-date-picker>
+                    <el-date-picker size="mini" v-model="params.starttime" type="datetime" placeholder="选择开始时间" @change="getHisActiveTrack(baseInfo.criId)"></el-date-picker>
                     <span>-</span>
-                    <el-date-picker size="mini" v-model="params.endtime" type="datetime" placeholder="选择结束时间"></el-date-picker>
+                    <el-date-picker size="mini" v-model="params.endtime" type="datetime" placeholder="选择结束时间" @change="getHisActiveTrack(baseInfo.criId)"></el-date-picker>
                   </span>
                 </section>
                 <section class="el-table-wrap clearfix">
@@ -240,7 +242,6 @@
     mounted: function() {
       this.getPriCodesData();
       this.getSupervisionTypes();
-      this.getPPositionData();
     },
     methods: {
       /** 获取监区列表 */
@@ -248,6 +249,12 @@
         this.$get(this.urlconfig.ppGetAreaData).then(res => {
           if (res.status === 0) {
             this.priCodes = res.data
+            if (this.priCodes.length > 0) {
+              this.params.priCode = this.priCodes[0].priCode;
+              this.getPaiCodesData();
+            } else {
+              this.params.priCode = "";
+            }
           }
         })
       },
@@ -257,6 +264,12 @@
         this.$post(this.urlconfig.ppGetHouseData, data).then(res => {
           if (res.status === 0) {
             this.paiCodes = res.data
+            if (this.paiCodes.length > 0) {
+              this.params.paiCode = this.paiCodes[0].paiCode;
+              this.getPPositionData();
+            } else {
+              this.params.paiCode = "";
+            }
           }
         })
       },
@@ -265,6 +278,11 @@
         this.$get(this.urlconfig.ppGetVisiontypeData).then(res => {
           if (res.status === 0) {
             this.supervisionTypes = res.data;
+            if (this.supervisionTypes.length > 0) {
+              this.params.supervisionType = this.supervisionTypes[0].sCode;
+            } else {
+              this.params.supervisionType = "";
+            }
           }
         })
       },
@@ -336,7 +354,11 @@
       },
       /** 页签切换操作 */
       handleClick(tab, event) {
-        
+        if (this.activeName == "first") {
+
+        } else if (this.activeName == "second") {
+          this.getHisActiveTrack(this.baseInfo.criId);
+        }
       }
     }
   }

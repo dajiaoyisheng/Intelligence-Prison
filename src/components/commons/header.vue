@@ -6,59 +6,58 @@
       <el-menu :default-active="$route.path" router class="nav-ul clearfix" :class="{navWrapFull:isFullNavWrap}" mode="horizontal"
         @select="handleSelect" background-color="#2f323c" text-color="#909399" active-text-color="#fff">
         <!-- <div class="nav-left-wrap"> -->
-
-          <div class="logoWrap">
-            <img class="logo" :src="logo" alt="">
-            <img class="name" :src="name" alt="">
-          </div>
-          <el-menu-item index="/workbench">
-            <router-link to="/workbench">工作台</router-link>
+        <div class="logoWrap">
+          <img class="logo" :src="logo" alt="">
+          <img class="name" :src="name" alt="">
+        </div>
+        <el-menu-item index="/workbench">
+          <router-link to="/workbench">工作台</router-link>
+        </el-menu-item>
+        <el-menu-item index="/tvmonitor">
+          <router-link to="/tvmonitor">视频监控</router-link>
+        </el-menu-item>
+        <el-menu-item index="/personnelposition">
+          <router-link to="/personnelposition">人员定位</router-link>
+        </el-menu-item>
+        <el-menu-item index="/pointname">
+          <router-link to="/pointname">人员点名</router-link>
+        </el-menu-item>
+        <el-submenu index="2">
+          <template slot="title">查询统计</template>
+          <el-menu-item index="/querystats/posunusual">
+            <router-link to="/querystats/posunusual">定位异常预警</router-link>
           </el-menu-item>
-          <el-menu-item index="/tvmonitor">
-            <router-link to="/tvmonitor">视频监控</router-link>
+          <el-menu-item index="/querystats/violation">
+            <router-link to="/querystats/violation">违规预警</router-link>
           </el-menu-item>
-          <el-menu-item index="/personnelposition">
-            <router-link to="/personnelposition">人员定位</router-link>
+          <el-menu-item index="/querystats/prewarningstats">
+            <router-link to="/querystats/prewarningstats">预警统计</router-link>
           </el-menu-item>
-          <el-menu-item index="/pointname">
-            <router-link to="/pointname">人员点名</router-link>
+        </el-submenu>
+        <el-submenu index="4">
+          <template slot="title">系统设置</template>
+          <el-menu-item index="/systemset/prisonmanagement">
+            <router-link to="/systemset/prisonmanagement">监区管理</router-link>
           </el-menu-item>
-          <el-submenu index="2">
-            <template slot="title">查询统计</template>
-            <el-menu-item index="/querystats/posunusual">
-              <router-link to="/querystats/posunusual">定位异常预警</router-link>
-            </el-menu-item>
-            <el-menu-item index="/querystats/violation">
-              <router-link to="/querystats/violation">违规预警</router-link>
-            </el-menu-item>
-            <el-menu-item index="/querystats/prewarningstats">
-              <router-link to="/querystats/prewarningstats">预警统计</router-link>
-            </el-menu-item>
-          </el-submenu>
-          <el-submenu index="4">
-            <template slot="title">系统设置</template>
-            <el-menu-item index="/systemset/prisonmanagement">
-              <router-link to="/systemset/prisonmanagement">监区管理</router-link>
-            </el-menu-item>
-            <el-menu-item index="/systemset/prisonermanagement">
-              <router-link to="/systemset/prisonermanagement">服刑人员管理</router-link>
-            </el-menu-item>
-            <el-menu-item index="/systemset/cameramanagement">
-              <router-link to="/systemset/cameramanagement">摄像头管理</router-link>
-            </el-menu-item>
-            <el-menu-item index="/systemset/servermanagement">
-              <router-link to="/systemset/servermanagement">服务地址配置</router-link>
-            </el-menu-item>
-            <el-menu-item index="/systemset/calendarmanagement">
-              <router-link to="/systemset/calendarmanagement">日历管理</router-link>
-            </el-menu-item>
-            <el-menu-item index="/systemset/sysoptionsmanagement">
-              <router-link to="/systemset/sysoptionsmanagement">系统选项</router-link>
-            </el-menu-item>
-            <el-menu-item index="/systemset/systemmanagement">
-              <router-link to="/systemset/systemmanagement">系统管理</router-link>
-            </el-menu-item>
-          </el-submenu>
+          <el-menu-item index="/systemset/prisonermanagement">
+            <router-link to="/systemset/prisonermanagement">服刑人员管理</router-link>
+          </el-menu-item>
+          <el-menu-item index="/systemset/cameramanagement">
+            <router-link to="/systemset/cameramanagement">摄像头管理</router-link>
+          </el-menu-item>
+          <el-menu-item index="/systemset/servermanagement">
+            <router-link to="/systemset/servermanagement">服务地址配置</router-link>
+          </el-menu-item>
+          <el-menu-item index="/systemset/calendarmanagement">
+            <router-link to="/systemset/calendarmanagement">日历管理</router-link>
+          </el-menu-item>
+          <el-menu-item index="/systemset/sysoptionsmanagement">
+            <router-link to="/systemset/sysoptionsmanagement">系统选项</router-link>
+          </el-menu-item>
+          <el-menu-item index="/systemset/systemmanagement">
+            <router-link to="/systemset/systemmanagement">系统管理</router-link>
+          </el-menu-item>
+        </el-submenu>
         <!-- </div> -->
         <!-- <el-menu-item index="input">
         </el-menu-item> -->
@@ -74,7 +73,7 @@
         </el-menu-item> -->
           <el-submenu index="username" class="username fl">
             <template slot="title">
-              {{username}}
+              <span @click="login">{{username}}</span>
               <img class="heard-icon-arrow" :src="downopen" alt="">
             </template>
             <el-menu-item index="2-1">选项1</el-menu-item>
@@ -104,7 +103,8 @@
     data() {
       return {
         logo: logo,
-        username: "admin",
+        username: "登录", // 如果没有登录则显示登录,注册,如果登录后则显示用户名
+        // username: "admin",// 如果没有登录则显示登录,注册,如果登录后则显示用户名
         name: name,
         loginout: loginout,
         downopen: downopen,
@@ -120,6 +120,10 @@
 
     methods: {
       handleSelect(key, keyPath) {},
+      // 显示登录弹层
+      login() {
+        this.$store.state.loginLayer = true;
+      }
     },
   }
 
@@ -231,6 +235,7 @@
 
   .nav-wrap .nav-right-wrap {
     /* padding-right: 2%; */
+    outline: none;
     width: 28%;
   }
 
@@ -256,7 +261,7 @@
   .nav-wrap .username,
   .nav-wrap .loginout {
     width: 25%;
-    text-align: center;    
+    text-align: center;
     height: 60px;
   }
 
@@ -272,6 +277,7 @@
   .nav-wrap .navWrapFull .loginout {
     width: calc((98% - 200px)/2);
   }
+
   .nav-wrap .navWrapFull .username {
     text-align: center;
   }

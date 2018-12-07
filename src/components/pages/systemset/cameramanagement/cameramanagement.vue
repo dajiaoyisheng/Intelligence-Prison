@@ -8,24 +8,31 @@
             <span>所在区域:</span>
             <el-cascader size="small" change-on-select placeholder="请选择" :options="prisonSubRegions" @change="changePaiPathFilter"></el-cascader>
           </el-col>
-          <el-col :span="7">
+          <el-col :span="6">
             <span>摄像头类型:</span>
             <el-select size="small" v-model="params.ciType" placeholder="请选择">
               <el-option v-for="item in cameraTypes" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
             </el-select>
           </el-col>
-          <el-col :span="7">
+          <el-col :span="6">
             <span>摄像头编号/名称:</span>
             <el-input size="small" class="pp-input" v-model="params.ciName" placeholder="请输入摄像头编号或名称" clearable></el-input>
           </el-col>
-          <el-col :span="3">
+          <el-col :span="5">
             <el-button type="primary" size="small" class="search-btn" @click="getCameraList">查询</el-button>
             <el-button type="primary" size="small" class="search-btn" @click="saveCameraInfo">保存</el-button>
+            <el-button type="primary" size="small" class="search-btn" @click="importCameras">导入</el-button>
+            <el-button type="primary" size="small" class="search-btn" @click="exportCameras">导出</el-button>
           </el-col>
         </el-row>
       </section>
       <section>
-        <el-dialog title="实时视频" :visible.sync="isShowVideo" width="900px" :before-close="beforeClose">
+        <el-dialog title="摄像头导入" :visible.sync="isShowImport" width="500px" :before-close="beforeImportClose">
+          <importCameras></importCameras>
+        </el-dialog>
+      </section>
+      <section>
+        <el-dialog title="实时视频" :visible.sync="isShowVideo" width="900px" :before-close="beforeVideoClose">
           <cameraVideo :cameraId="cameraId"></cameraVideo>
         </el-dialog>
       </section>
@@ -66,10 +73,12 @@
   import video from '@/assets/video.png';
   import tablePagination from '@/components/commons/tablePage.vue';
   import cameraVideo from '@/components/pages/systemset/cameramanagement/showVideo.vue';
+  import importCameras from '@/components/pages/systemset/cameramanagement/importCameras.vue';
 
   export default {
     components: {
       cameraVideo,
+      importCameras,
       tablePagination
     },
     data() {
@@ -80,6 +89,7 @@
         cameraList: [],         // 摄像头列表
         cameraId: null,         // 摄像头ID
         isShowVideo: false,     // 是否弹出视频
+        isShowImport: false,    // 是否弹出导入
         changeRow: [],          // 保存修改列表
         current: null,          // 修改当前节点
         tempRow: [],            // 保存一下当前点击的所在区域的数据
@@ -162,7 +172,7 @@
         this.isShowVideo = true;
       },
       /** 关闭视频操作 */
-      beforeClose: function () {
+      beforeVideoClose: function () {
         this.cameraId = null;
         this.isShowVideo = false;
       },
@@ -215,6 +225,19 @@
           }
           return null;
         });
+      },
+      /** 弹出摄像头导入 */
+      importCameras: function() {
+        this.isShowImport = true;
+      },
+      /** 关闭摄像头导入 */
+      beforeImportClose: function () {
+        this.isShowImport = false;
+        this.getCameraList();
+      },
+      /** 导出摄像头列表 */
+      exportCameras: function() {
+        alert("导出");
       }
     }
   }

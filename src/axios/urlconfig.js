@@ -137,6 +137,10 @@ let urlconfig = {
   cmGetCameraList: `/cameraInfo.action?method=getCameraList`,
   // 保存摄像头信息
   cmSaveCameraInfo: `/cameraInfo.action?method=saveCameraInfo`,
+  // 下载导入模板
+  cmImportCameras: `/cameraInfo.action?method=importCameras`,
+  // 下载导入模板
+  cmDownloadTemplet: `/cameraInfo.action?method=downloadTemplet`,
   // 摄像头管理end
 
 
@@ -149,9 +153,11 @@ let urlconfig = {
   wkGetBenchChartbarData: `/workBench.action?method=getWarnTypePrisoners`,
   //人员状态
   wkGetPStatus: `/workBench.action?method=getStatusPrisoners`,
-  //图片列表
-  wkGetPictureList: `/workBench.action?method=getPictureList`,
   //工作台end
 
+  //系统管理begin
+  //获取日志列表
+  smGetLoggers: `/systemLog.action?method=getLoggers`
+  //系统管理end
 }
 export default urlconfig

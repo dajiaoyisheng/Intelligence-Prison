@@ -1,20 +1,27 @@
 <template>
-  <el-tree ref="tree" :data="treeData" node-key="id"
-   @node-click="handleNodeClick" 
-   :default-expand-all="defaultExpandAll" 
-   :expand-on-click-node="false" 
-   :check-on-click-node="true" 
-   :check-strictly="true" 
-   @node-drag-start="handleDragStart"
-   @node-drag-end="handleDragEnd" 
-   @node-drag-enter="handleDragEnter" 
-   :draggable="draggable" 
-   :allow-drop="allowDrop" 
-   :allow-drag="allowDrag">
-      <span class="custom-tree-node" slot-scope="{ node, data }">
-        <span :class="data.relationed"> <i :class="data.icon"></i>{{ data.label }}</span>
+  <el-tree
+    ref="tree"
+    :data="treeData"
+    node-key="id"
+    @node-click="handleNodeClick"
+    :default-expand-all="defaultExpandAll"
+    :expand-on-click-node="false"
+    :check-on-click-node="true"
+    :check-strictly="true"
+    @node-drag-start="handleDragStart"
+    @node-drag-end="handleDragEnd"
+    @node-drag-enter="handleDragEnter"
+    :draggable="draggable"
+    :allow-drop="allowDrop"
+    :allow-drag="allowDrag"
+  >
+    <span class="custom-tree-node" slot-scope="{ node, data }">
+      <span :class="data.relationed">
+        <i :class="data.icon"></i>
+        {{ data.label }}
       </span>
-    </el-tree>
+    </span>
+  </el-tree>
 </template>
 <script>
 export default {
@@ -47,8 +54,19 @@ export default {
     getCurrentNode() {
       return this.$refs.tree.getCurrentNode();
     },
+    getCurrentKey() {
+      return this.$refs.tree.getCurrentKey();
+    },
+    //添加
     append(data, parentNode) {
       return this.$refs.tree.append(data, parentNode);
+    },
+    //更新
+    updateKeyChildren(key, data) {
+      return this.$refs.tree.updateKeyChildren(key, data);
+    },
+    remove(data) {
+      return this.$refs.tree.remove(data);
     },
     setRelatione(data) {
       let treeNode = this.$refs.tree.getNode(data);

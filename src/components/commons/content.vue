@@ -3,6 +3,7 @@
     <v-head></v-head>
     <div class="content-wrap clearfix">
       <router-view class="content clearfix" />
+      <v-login v-if="this.$store.state.loginLayer"></v-login>
       <vue-loading class="fixed-center z-index-height" v-show="this.$store.state.loading" type="bars" color="#0a74bb"
         :size="{ width: '50px', height: '50px' }"></vue-loading>
       <!-- 异常位置预警tip begin -->
@@ -25,6 +26,7 @@
 
 <script>
   import vHead from './header.vue';
+  import vLogin from './login.vue';
   import warning from '@/assets/warning.png';
   // import websocket from 'websocket';
   export default {
@@ -36,7 +38,8 @@
       }
     },
     components: {
-      vHead
+      vHead,
+      vLogin
     },
     methods: {
       close() {

@@ -1,0 +1,2 @@
+这里是绘制图形的一些类
+页面在src\components\pages\systemset\prisonmanagement\prisonmanagement.vue

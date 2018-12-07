@@ -1,50 +1,45 @@
-import Konva from 'konva';
+import go from 'gojs';
 
-class Camera {
-    constructor(shape) {
-        let imageObj = shape.image;
-        let x = shape.x;
-        let y = shape.y;
-        let uuid = shape.uuid;
-        let defauleAngle = shape.angle; //角度
-        let rotation = shape.rotation || 90;
-        let name = shape.name || "PerfectCamera" + uuid;
+export default class {
+    constructor(rectuuid) {
+        let camerasvg = `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1 Basic//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-basic.dtd"><svg version="1.1" baseProfile="basic" id="svg2" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"><path id="path410" d="m26.7,13.016006c-0.16,6.095 -5.55,10.992 -12.2,10.992c-6.61,0 -11.99,-4.864 -12.19,-10.934a5.278,5.278 0 0 1 -2.28,-1.96c-0.11,-1.648 0,-6.3 0,-7.369c4.56,-4.952 24.24,-5.029 28.95,0l0,7.369a5.464,5.464 0 0 1 -2.28,1.9l0,0l0,0.002zm-16.44,6.844l0,0c0.62,1.071 2.28,1.843 4.24,1.843s3.63,-0.772 4.25,-1.843l0,0l0.19,-5.986l0,0a4.511,4.511 0 0 0 -8.87,0l0,0l0.19,5.986zm16.46,-15.116c-4.16,-3.047 -18.96,-3.282 -24.43,-0.081c0,0.551 -0.05,3.024 0.04,3.87c4.3,-2.741 19.96,-2.7 24.39,0l0,-3.787l0,-0.002zm-12.22,10.05a2.552,2.552 0 1 1 -2.26,2.535a2.415,2.415 0 0 1 2.26,-2.535l0,0zm12.22,-10.05"/></svg>`;
 
-        let camera = new Konva.Image({
-            name: name,
-            image: imageObj,
-            x: x,
-            y: y,
-            uuid: uuid, //标识
-            rotation: rotation,
-            width: imageObj.width,
-            height: imageObj.height,
-            offset: { // offset的设置是使得围绕中心旋转
-                x: imageObj.width / 2,
-                y: imageObj.height / 2
+        //使用这个可以设置shape的position属性
+        let cameradrawing = new go.Node(go.Panel.Position);
+        let xmldoc = new DOMParser().parseFromString(camerasvg, "text/xml");
+        let paths = xmldoc.getElementsByTagName("path");
+
+        for (let i = 0; i < paths.length; i++) {
+            let path = paths[i];
+            let shape = new go.Shape();
+
+            let stroke = path.getAttribute("stroke");
+            if (typeof stroke === "string" && stroke !== "none") {
+                shape.stroke = stroke;
+            } else {
+                shape.stroke = null;
             }
-        });
 
-        let imgW = camera.width(),
-            imgH = camera.height();
+            let strokewidth = parseFloat(path.getAttribute("stroke-width"));
+            if (!isNaN(strokewidth)) shape.strokeWidth = strokewidth;
 
-        let lastAngle = defauleAngle;
+            let id = path.getAttribute("id");
+            if (typeof id === "string") shape.name = id;
 
-        Konva.Util.addMethods(Konva.Image, {
-            setAngle(angle, isfirst) {
-                if (isfirst) {
-                    angle = defauleAngle;
-                } else {
-                    angle = angle || 0;
-                    this.rotate(-lastAngle);
-                }
-                this.rotate(parseInt(angle));
-                lastAngle = angle;
+            let fill = path.getAttribute("fill");
+            if (typeof fill === "string") {
+                shape.fill = (fill === "none") ? null : fill;
             }
-        });
 
-        return camera;
+            let data = path.getAttribute("d");
+            if (typeof data === "string") shape.geometry = go.Geometry.parse(data, true);
+
+            shape.height = 24;
+            shape.width = 28.97;
+            cameradrawing.add(shape);
+        }
+        //将图形的__gohashid添加到camera的属性上以便后续操作
+        cameradrawing.rectuuid = rectuuid;
+        return cameradrawing;
     }
 }
-
-export default Camera;

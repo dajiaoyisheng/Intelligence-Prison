@@ -49,17 +49,15 @@
                   <div class="puu-item-popover"><span>性别：</span>{{ prisonerInfo.criGender }}</div>
                   <div class="puu-item-popover"><span>年龄：</span>{{ prisonerInfo.age }} 岁</div>
                   <div class="puu-item-popover"><span>监舍：</span>{{ prisonerInfo.criPaiCode }}</div>
-                  <div class="puu-item-popover"><span>互监组：</span>{{ prisonerInfo.group }}</div>
+                  <div class="puu-item-popover"><span>服刑类型：</span>{{ prisonerInfo.criSupervisetype }}</div>
                 </el-col>
                 <el-col :span="13"><img src="@/assets/pp-p.png" style="width:140px; height:90px;"></el-col>
               </el-row>
               <el-row>
                 <el-col :span="11">
-                  <div class="puu-item-popover"><span>服刑类型：</span>{{ prisonerInfo.criSupervisetype }}</div>
-                  <div class="puu-item-popover"><span>被预警次数：</span>{{ prisonerInfo.count }} 次</div>
+                  <div class="puu-item-popover"><span>入狱罪行：</span>{{ prisonerInfo.criAccusation }}</div>
                 </el-col>
                 <el-col :span="13">
-                  <div class="puu-item-popover"><span>入狱罪行：</span>{{ prisonerInfo.criAccusation }}</div>
                   <div class="puu-item-popover"><span>服刑日期：</span>{{ prisonerInfo.criStartdate }}</div>
                 </el-col>
               </el-row>
