@@ -3,12 +3,21 @@
   <!-- nav -->
   <div>
     <nav class="nav-wrap">
-      <el-menu :default-active="$route.path" router class="nav-ul clearfix" :class="{navWrapFull:isFullNavWrap}" mode="horizontal"
-        @select="handleSelect" background-color="#2f323c" text-color="#909399" active-text-color="#fff">
+      <el-menu
+        :default-active="$route.path"
+        router
+        class="nav-ul clearfix"
+        :class="{navWrapFull:isFullNavWrap}"
+        mode="horizontal"
+        @select="handleSelect"
+        background-color="#2f323c"
+        text-color="#909399"
+        active-text-color="#fff"
+      >
         <!-- <div class="nav-left-wrap"> -->
         <div class="logoWrap">
-          <img class="logo" :src="logo" alt="">
-          <img class="name" :src="name" alt="">
+          <img class="logo" :src="logo" alt>
+          <img class="name" :src="name" alt>
         </div>
         <el-menu-item index="/workbench">
           <router-link to="/workbench">工作台</router-link>
@@ -60,315 +69,329 @@
         </el-submenu>
         <!-- </div> -->
         <!-- <el-menu-item index="input">
-        </el-menu-item> -->
+        </el-menu-item>-->
         <div class="nav-right-wrap clearfix fr">
-
           <!-- <el-menu-item index="search"> -->
-          <el-input class="nav-input fl clearfix" size="mini" placeholder="请输入内容" suffix-icon="el-icon-search" v-model="input">
-          </el-input>
+          <el-input
+            class="nav-input fl clearfix"
+            size="mini"
+            placeholder="请输入内容"
+            suffix-icon="el-icon-search"
+            v-model="input"
+          ></el-input>
           <!-- </el-menu-item> -->
           <!-- <el-menu-item index="username">
           <span>admin</span>
           <img class="heard-icon-btn" :src="downopen" alt="">
-        </el-menu-item> -->
+          </el-menu-item>-->
           <el-submenu index="username" class="username fl">
             <template slot="title">
-              <span @click="login">{{username}}</span>
-              <img class="heard-icon-arrow" :src="downopen" alt="">
+              <span>{{username}}</span>
+              <img class="heard-icon-arrow" :src="downopen" alt>
             </template>
             <el-menu-item index="2-1">选项1</el-menu-item>
             <el-menu-item index="2-2">选项2</el-menu-item>
             <el-menu-item index="2-3">选项3</el-menu-item>
           </el-submenu>
 
-          <el-menu-item index="loginout" class="loginout fl">
+          <span index="loginout" class="loginout fl" @click="logout()">
             <span>退出</span>
-            <img class="heard-icon-outlogin" :src="loginout" alt="">
-          </el-menu-item>
+            <img class="heard-icon-outlogin" :src="loginout" alt>
+          </span>
         </div>
         <!-- <div>admin</div>
-        <div>退出</div> -->
+        <div>退出</div>-->
       </el-menu>
     </nav>
   </div>
 </template>
 
 <script>
-  import logo from '@/assets/logo.png'
-  import name from '@/assets/name.png'
-  import downopen from '@/assets/downopen.png'
-  import loginout from '@/assets/loginout.png'
-  export default {
-    name: 'Header',
-    data() {
-      return {
-        logo: logo,
-        username: "登录", // 如果没有登录则显示登录,注册,如果登录后则显示用户名
-        // username: "admin",// 如果没有登录则显示登录,注册,如果登录后则显示用户名
-        name: name,
-        loginout: loginout,
-        downopen: downopen,
-        input: '',
-      };
-    },
-    computed: {
-      isFullNavWrap() {
-        return this.$store.state.isFullNavWrap
-      }
-    },
-    mounted: function () {},
+import logo from "@/assets/logo.png";
+import name from "@/assets/name.png";
+import downopen from "@/assets/downopen.png";
+import loginout from "@/assets/loginout.png";
+export default {
+  name: "Header",
+  data() {
+    return {
+      logo: logo,
+      username: this.$store.state.loginUsername
+        ? this.$store.state.loginUsername
+        : "登录", // 如果没有登录则显示登录,注册,如果登录后则显示用户名
+      // username: "admin",// 如果没有登录则显示登录,注册,如果登录后则显示用户名
+      name: name,
+      loginout: loginout,
+      downopen: downopen,
+      input: ""
+    };
+  },
+  computed: {
+    isFullNavWrap() {
+      return this.$store.state.isFullNavWrap;
+    }
+  },
+  mounted: function() {},
 
-    methods: {
-      handleSelect(key, keyPath) {},
-      // 显示登录弹层
-      login() {
-        this.$store.state.loginLayer = true;
-      }
-    },
+  methods: {
+    handleSelect(key, keyPath) {},
+    logout() {
+      this.$post(this.urlconfig.logout, {
+        username: this.$store.state.loginUsername
+      })
+        .then(res => {
+          if (res.status == 0) {
+            // this.$store.commit("setUsername", "");
+            // this.$router.push({ path: "/" });
+          }
+        })
+        .catch(e => {
+          console.log(e);
+        });
+    }
   }
-
+};
 </script>
 
 <style scoped>
-  .nav-wrap {
-    background-color: rgb(47, 50, 60);
-    height: 60px;
-    position: fixed;
-    /* 因为: echart tooltip z-index:99 导航挑nav ele-ui messege z-index:2000 */
-    z-index: 999;
-    width: 100%;
-    top: 0;
-    left: 0;
-  }
+.nav-wrap {
+  background-color: rgb(47, 50, 60);
+  height: 60px;
+  position: fixed;
+  /* 因为: echart tooltip z-index:99 导航挑nav ele-ui messege z-index:2000 */
+  z-index: 999;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
 
-  .nav-wrap .nav-ul {
-    margin: 0 auto;
-    width: 1200px;
-  }
+.nav-wrap .nav-ul {
+  margin: 0 auto;
+  width: 1200px;
+}
 
-  .nav-wrap .navWrapFull {
-    width: 100%;
-    min-width: 1200px;
-    padding: 0 2%
-  }
+.nav-wrap .navWrapFull {
+  width: 100%;
+  min-width: 1200px;
+  padding: 0 2%;
+}
 
-  /* .nav-wrap .navWrapFull .el-menu-item {
+/* .nav-wrap .navWrapFull .el-menu-item {
     padding: 0 1%;
   } */
 
-  .el-menu-item:hover {
-    color: #fff !important;
-    background-color: #2f323c !important;
-  }
+.el-menu-item:hover {
+  color: #fff !important;
+  background-color: #2f323c !important;
+}
 
-  .el-submenu:hover {
-    color: #fff !important;
-  }
+.el-submenu:hover {
+  color: #fff !important;
+}
 
-  .nav-wrap .navWrapFull .el-submenu {
-    /* padding: 0 1%; */
-  }
+.nav-wrap .navWrapFull .el-submenu {
+  /* padding: 0 1%; */
+}
 
-  .logoWrap {
-    /* display: inline-block; */
-    float: left;
-    line-height: 60px;
-    margin-right: 5%;
-  }
+.logoWrap {
+  /* display: inline-block; */
+  float: left;
+  line-height: 60px;
+  margin-right: 5%;
+}
 
-  .logoWrap:focus {
-    outline: none;
-  }
+.logoWrap:focus {
+  outline: none;
+}
 
-  .logoWrap img {
-    vertical-align: middle;
-  }
+.logoWrap img {
+  vertical-align: middle;
+}
 
-  .logoWrap span {
-    color: rgba(255, 255, 255, 1);
-  }
+.logoWrap span {
+  color: rgba(255, 255, 255, 1);
+}
 
-  .logo {
-    width: 20px;
-    height: 17px;
-    margin-right: 10px;
-  }
+.logo {
+  width: 20px;
+  height: 17px;
+  margin-right: 10px;
+}
 
-  /* .el-menu>li>a {
+/* .el-menu>li>a {
     width: 48px;
     height: 16px;
     font-family: MicrosoftYaHei;
     line-height: 15px;
   } */
 
-  /* 点击导航菜单时下面显示的横线 */
-  .el-menu--horizontal>.el-menu-item.is-active {
-    border-bottom: none;
-  }
+/* 点击导航菜单时下面显示的横线 */
+.el-menu--horizontal > .el-menu-item.is-active {
+  border-bottom: none;
+}
 
-  /* 二级菜单 */
-  .el-submenu__title {
-    border-bottom-color: none !important;
-  }
+/* 二级菜单 */
+.el-submenu__title {
+  border-bottom-color: none !important;
+}
 
-  .el-menu--horizontal>.el-submenu.is-active .el-submenu__title {
-    border-bottom: none;
-  }
+.el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+  border-bottom: none;
+}
 
-  .el-submenu.is-active .el-submenu__title {
-    border-bottom-color: none;
-  }
+.el-submenu.is-active .el-submenu__title {
+  border-bottom-color: none;
+}
 
-  .el-menu--horizontal .el-menu-item:not(.is-disabled):focus,
-  .el-menu--horizontal .el-menu-item:not(.is-disabled):hover {
-    outline: 0;
-    color: #fff;
-  }
+.el-menu--horizontal .el-menu-item:not(.is-disabled):focus,
+.el-menu--horizontal .el-menu-item:not(.is-disabled):hover {
+  outline: 0;
+  color: #fff;
+}
 
-  .nav-wrap .el-menu-item {
-    padding: 0 1.3%;
-  }
+.nav-wrap .el-menu-item {
+  padding: 0 1.3%;
+}
 
-  .nav-wrap .navWrapFull .nav-left-wrap {
-    width: 63%
-  }
+.nav-wrap .navWrapFull .nav-left-wrap {
+  width: 63%;
+}
 
-  .nav-wrap .nav-right-wrap {
-    /* padding-right: 2%; */
-    outline: none;
-    width: 28%;
-  }
+.nav-wrap .nav-right-wrap {
+  /* padding-right: 2%; */
+  outline: none;
+  width: 28%;
+}
 
-  .nav-wrap .navWrapFull .nav-right-wrap {
-    padding-left: 2%;
-    width: 30%;
-  }
+.nav-wrap .navWrapFull .nav-right-wrap {
+  padding-left: 2%;
+  width: 30%;
+}
 
-  .nav-wrap .nav-input {
-    outline: none;
-    width: 50%;
-    height: 60px;
-    line-height: 64px;
-    /* float: left; */
-    text-align: right;
-    /* margin-right: 0.8%; */
-  }
+.nav-wrap .nav-input {
+  outline: none;
+  width: 50%;
+  height: 60px;
+  line-height: 64px;
+  /* float: left; */
+  text-align: right;
+  /* margin-right: 0.8%; */
+}
 
-  .nav-wrap .navWrapFull .nav-input {
-    width: 200px;
-  }
+.nav-wrap .navWrapFull .nav-input {
+  width: 200px;
+}
 
-  .nav-wrap .username,
-  .nav-wrap .loginout {
-    width: 25%;
-    text-align: center;
-    height: 60px;
-  }
+.nav-wrap .username,
+.nav-wrap .loginout {
+  width: 25%;
+  text-align: center;
+  height: 56px;
+  line-height: 56px;
+  font-size: 14px;
+  cursor: pointer;
+  color: rgb(144, 147, 153);
+}
 
-  .nav-wrap .username {
-    line-height: 64px;
-  }
+.nav-wrap .username {
+  line-height: 64px;
+}
 
-  .nav-wrap .loginout {
-    line-height: 60px;
-  }
+.nav-wrap .loginout {
+  line-height: 60px;
+}
 
-  .nav-wrap .navWrapFull .username,
-  .nav-wrap .navWrapFull .loginout {
-    width: calc((98% - 200px)/2);
-  }
+.nav-wrap .navWrapFull .username,
+.nav-wrap .navWrapFull .loginout {
+  width: calc((98% - 200px) / 2);
+}
 
-  .nav-wrap .navWrapFull .username {
-    text-align: center;
-  }
+.nav-wrap .navWrapFull .username {
+  text-align: center;
+}
 
-  .nav-wrap .navWrapFull .loginout {
-    text-align: left;
-  }
+.nav-wrap .navWrapFull .loginout {
+  text-align: left;
+}
 
-
-  /* .nav-wrap .navWrapFull .nav-input {
+/* .nav-wrap .navWrapFull .nav-input {
     margin-right: 2%;
   } */
 
-  img.heard-icon-arrow {
-    width: 11px;
-    height: 11px;
-  }
+img.heard-icon-arrow {
+  width: 11px;
+  height: 11px;
+}
 
-  img.heard-icon-outlogin {
-    width: 15px;
-    height: 15px;
-  }
-
+img.heard-icon-outlogin {
+  width: 15px;
+  height: 15px;
+}
 </style>
 // 写在下面是因为:写在scoped中设置不生效
 <style>
-  /* 调整带有二级菜单的一级菜单位置偏下的问题 */
-  .nav-wrap .el-menu--horizontal>.el-submenu .el-submenu__title {
-    line-height: 64px;
-  }
+/* 调整带有二级菜单的一级菜单位置偏下的问题 */
+.nav-wrap .el-menu--horizontal > .el-submenu .el-submenu__title {
+  line-height: 64px;
+}
 
-  .nav-wrap .el-submenu__title {
-    padding: 0;
-  }
+.nav-wrap .el-submenu__title {
+  padding: 0;
+}
 
-  .nav-wrap .navWrapFull .el-submenu__title {
-    padding: 0;
-  }
+.nav-wrap .navWrapFull .el-submenu__title {
+  padding: 0;
+}
 
-  .nav-wrap .el-submenu__title:hover {
-    color: #fff !important;
-    background-color: #2f323c !important;
-  }
+.nav-wrap .el-submenu__title:hover {
+  color: #fff !important;
+  background-color: #2f323c !important;
+}
 
+.nav-wrap .el-menu--horizontal > .el-submenu {
+  padding: 0 1.9%;
+}
 
-  .nav-wrap .el-menu--horizontal>.el-submenu {
-    padding: 0 1.9%;
-  }
-
-  /* .nav-wrap .el-menu--horizontal>.el-submenu:hover {
+/* .nav-wrap .el-menu--horizontal>.el-submenu:hover {
     color: #fff;
   } */
 
-  .nav-wrap .el-input--mini .el-input__inner {
-    width: 150px;
-    height: 30px;
-    border-radius: 15px;
-    background-color: rgb(47, 50, 60);
-    outline: none;
-    color: rgb(144, 147, 153);
-    border-color: rgb(144, 147, 153);
-  }
+.nav-wrap .el-input--mini .el-input__inner {
+  width: 150px;
+  height: 30px;
+  border-radius: 15px;
+  background-color: rgb(47, 50, 60);
+  outline: none;
+  color: rgb(144, 147, 153);
+  border-color: rgb(144, 147, 153);
+}
 
+.nav-wrap .el-submenu__icon-arrow {
+  display: none;
+}
 
-  .nav-wrap .el-submenu__icon-arrow {
-    display: none;
-  }
+.el-menu--popup-bottom-start {
+  margin-top: 0px;
+}
 
-  .el-menu--popup-bottom-start {
-    margin-top: 0px;
-  }
+.el-menu--popup {
+  min-width: 160px;
+  padding: 20px 0;
+  border-radius: 0px;
+  opacity: 0.95;
+}
 
-  .el-menu--popup {
-    min-width: 160px;
-    padding: 20px 0;
-    border-radius: 0px;
-    opacity: .95;
-  }
+.el-menu--horizontal .el-menu .el-menu-item,
+.el-menu--horizontal .el-menu .el-submenu__title {
+  padding: 0 20px;
+}
 
-  .el-menu--horizontal .el-menu .el-menu-item,
-  .el-menu--horizontal .el-menu .el-submenu__title {
-    padding: 0 20px;
-  }
+.el-menu--horizontal .el-menu .el-menu-item a:hover,
+.el-menu--horizontal .el-menu .el-submenu__title a:hover {
+  color: #fff !important;
+}
 
-  .el-menu--horizontal .el-menu .el-menu-item a:hover,
-  .el-menu--horizontal .el-menu .el-submenu__title a:hover {
-    color: #fff !important;
-  }
-
-  .el-menu--horizontal>.el-submenu.is-active .el-submenu__title {
-    border-bottom: none;
-  }
-
+.el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+  border-bottom: none;
+}
 </style>

@@ -1,165 +1,116 @@
 <template>
-  <section class="login-wrap">
-    <a href="javascript:;" class="log-close">
-      <i class="icons close"></i>
-    </a>
-    <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm">
-      <el-form-item label="账号" prop="username">
-        <el-input type="text" v-model="ruleForm2.username" autocomplete="off"></el-input>
-      </el-form-item>
-      <el-form-item label="密码" prop="pass">
-        <el-input type="password" v-model="ruleForm2.pass" autocomplete="off"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="login('ruleForm2')">登录</el-button>
-        <el-button @click="resetForm('ruleForm2')">重置</el-button>
-      </el-form-item>
-    </el-form>
-  </section>
+  <el-form
+    :model="ruleForm2"
+    :rules="rules2"
+    ref="ruleForm2"
+    label-position="left"
+    label-width="0px"
+    class="demo-ruleForm login-container"
+  >
+    <h3 class="title">系统登录</h3>
+    <el-form-item prop="account">
+      <el-input type="text" v-model="ruleForm2.account" auto-complete="off" placeholder="账号"></el-input>
+    </el-form-item>
+    <el-form-item prop="checkPass">
+      <el-input type="password" v-model="ruleForm2.checkPass" auto-complete="off" placeholder="密码"></el-input>
+    </el-form-item>
+    <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox>
+    <el-form-item style="width:100%;">
+      <el-button
+        type="primary"
+        style="width:100%;"
+        @click.native.prevent="handleSubmit2"
+        :loading="logining"
+      >登录</el-button>
+      <!--<el-button @click.native.prevent="handleReset2">重置</el-button>-->
+    </el-form-item>
+  </el-form>
 </template>
+
 <script>
-  export default {
-    name: 'login',
-    data() {
-      //   var checkAge = (rule, value, callback) => {
-      //     if (!value) {
-      //       return callback(new Error('年龄不能为空'));
-      //     }
-      //     setTimeout(() => {
-      //       if (!Number.isInteger(value)) {
-      //         callback(new Error('请输入数字值'));
-      //       } else {
-      //         if (value < 18) {
-      //           callback(new Error('必须年满18岁'));
-      //         } else {
-      //           callback();
-      //         }
-      //       }
-      //     }, 1000);
-      //   };
-      var validateName = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('请输入账号'));
-        } else {
-          if (this.ruleForm2.checkPass !== '') {
-            this.$refs.ruleForm2.validateField('checkPass');
-          }
-          callback();
-        }
-      };
-      var validatePass = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('请输入密码'));
-        } else {
-          if (this.ruleForm2.username !== '') {
-            this.$refs.ruleForm2.validateField('username');
-          }
-          callback();
-        }
-      };
-      var validatePass2 = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('请再次输入密码'));
-        } else if (value !== this.ruleForm2.pass) {
-          callback(new Error('两次输入密码不一致!'));
-        } else {
-          callback();
-        }
-      };
-      return {
-        ruleForm2: {
-          username: '',
-          pass: '',
-          //   checkPass: '',
-        },
-        rules2: {
-          username: [{
-            validator: validateName,
-            trigger: 'blur'
-          }],
-          pass: [{
-            validator: validatePass,
-            trigger: 'blur'
-          }],
-          //   checkPass: [{
-          //     validator: validatePass2,
-          //     trigger: 'blur'
-          //   }]
-          //   ,
-          //   age: [{
-          //     validator: checkAge,
-          //     trigger: 'blur'
-          //   }]
-        }
-      };
-    },
-    methods: {
-      login(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            alert('submit!');
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
+export default {
+  name: "login",
+  data() {
+    return {
+      logining: false,
+      ruleForm2: {
+        account: "admin",
+        checkPass: "123456"
       },
-      resetForm(formName) {
-        this.$refs[formName].resetFields();
-      }
+      rules2: {
+        account: [
+          { required: true, message: "请输入账号", trigger: "blur" }
+          //{ validator: validaePass }
+        ],
+        checkPass: [
+          { required: true, message: "请输入密码", trigger: "blur" }
+          //{ validator: validaePass2 }
+        ]
+      },
+      checked: true
+    };
+  },
+  mounted() {
+    history.pushState(null, null, document.URL);
+    window.addEventListener("popstate", function() {
+      history.pushState(null, null, document.URL);
+    });
+  },
+  methods: {
+    handleReset2() {
+      this.$refs.ruleForm2.resetFields();
+    },
+    handleSubmit2(ev) {
+      var _this = this;
+      this.$refs.ruleForm2.validate(valid => {
+        if (valid) {
+          //_this.$router.replace('/table');
+          this.logining = true;
+          //NProgress.start();
+          var loginParams = {
+            username: this.ruleForm2.account,
+            password: this._simple_encode(this.ruleForm2.checkPass)
+          };
+          this.$post(this.urlconfig.login, loginParams)
+            .then(res => {
+              this.logining = false;
+              if (res.status == 0) {
+                this.$store.commit("setUsername", loginParams.username);
+                this.$router.push({ path: "/Content" });
+              }
+            })
+            .catch(e => {
+              console.log(e);
+              this.logining = false;
+            });
+        } else {
+          return false;
+        }
+      });
     }
   }
-
+};
 </script>
+
 <style scoped>
-  .login-wrap {
-    overflow: hidden;
-    position: fixed;
-    transform: translate(-50%, -50%);
-    left: 50%;
-    /* margin-left: -250px; */
-    top: 50%;
-    /* margin-top: -350px; */
-    width: 500px;
-    min-height: 355px;
-    z-index: 10;
-    right: 140px;
-    background: #fff;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    -ms-border-radius: 5px;
-    -o-border-radius: 5px;
-    border-radius: 5px;
-    -webkit-box-shadow: 0px 3px 16px -5px #070707;
-    box-shadow: 0px 3px 16px -5px #070707
-  }
-
-  .log-close {
-    display: block;
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    opacity: 1;
-  }
-
-  .log-close:hover .icons {
-    transform: rotate(180deg);
-  }
-
-  .log-close .icons {
-    opacity: 1;
-    transition: all .3s
-  }
-
-  .icons {
-    /* background: url('../assets/icons.png') no-repeat; */
-    display: inline-block;
-  }
-
-  .close {
-    height: 16px;
-    width: 16px;
-    background-position: -13px 0;
-  }
-
+.login-container {
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  background-clip: padding-box;
+  margin: 180px auto;
+  width: 350px;
+  padding: 35px 35px 15px 35px;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 0 25px #cac6c6;
+}
+.login-container .title {
+  margin: 0px auto 40px auto;
+  text-align: center;
+  color: #505458;
+}
+.login-container .remember {
+  margin: 0px 0px 35px 0px;
+}
 </style>
