@@ -22,13 +22,13 @@
             <el-button type="primary" size="small" class="search-btn" @click="getCameraList">查询</el-button>
             <el-button type="primary" size="small" class="search-btn" @click="saveCameraInfo">保存</el-button>
             <el-button type="primary" size="small" class="search-btn" @click="importCameras">导入</el-button>
-            <el-button type="primary" size="small" class="search-btn" @click="exportCameras">导出</el-button>
+            <a class="search-btn exportButton" :href="exportURL" download="">导出</a>
           </el-col>
         </el-row>
       </section>
       <section>
         <el-dialog title="摄像头导入" :visible.sync="isShowImport" width="500px" :before-close="beforeImportClose">
-          <importCameras></importCameras>
+          <importCameras ref="importCameras"></importCameras>
         </el-dialog>
       </section>
       <section>
@@ -93,6 +93,7 @@
         changeRow: [],          // 保存修改列表
         current: null,          // 修改当前节点
         tempRow: [],            // 保存一下当前点击的所在区域的数据
+        exportURL: "",         // 导出摄像头地址
         params: {
           paiCode: "",
           ciType: "",
@@ -102,11 +103,16 @@
       }
     },
     mounted() {
+      this.initDatas();
       this.getPrisonSubRegions();
       this.getCameraTypes();
       this.getCameraList();
     },
     methods: {
+      /** 初始化数据 */
+      initDatas: function() {
+        this.exportURL = this.$store.state.env + this.urlconfig.cmExportCameras;
+      },
       /** 获取所属区域 */
       getPrisonSubRegions: function () {
         this.$get(this.urlconfig.cmGetPrisonSubRegions).then((res) => {
@@ -229,15 +235,14 @@
       /** 弹出摄像头导入 */
       importCameras: function() {
         this.isShowImport = true;
+        this.$nextTick(() => {
+          this.$refs.importCameras.initDatas();
+        });
       },
       /** 关闭摄像头导入 */
       beforeImportClose: function () {
         this.isShowImport = false;
         this.getCameraList();
-      },
-      /** 导出摄像头列表 */
-      exportCameras: function() {
-        alert("导出");
       }
     }
   }
@@ -262,6 +267,18 @@
 
   .tree-wrap-self {
     display: none;
+  }
+
+  .exportButton {
+    width: 56px;
+    height: 32px;
+    line-height: 32px;
+    margin-left: 10px;
+
+    font-size: 10px;
+    border-radius: 3px;
+    text-align: center;
+    display: inline-block;
   }
 </style>
 

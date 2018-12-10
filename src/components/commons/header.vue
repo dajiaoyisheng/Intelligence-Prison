@@ -141,8 +141,8 @@ export default {
       })
         .then(res => {
           if (res.status == 0) {
-            // this.$store.commit("setUsername", "");
-            // this.$router.push({ path: "/" });
+            this.$store.commit("setUsername", "");
+            this.$router.push({ path: "/" });
           }
         })
         .catch(e => {

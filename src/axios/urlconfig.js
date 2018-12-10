@@ -137,8 +137,10 @@ let urlconfig = {
     cmGetCameraList: `/cameraInfo.action?method=getCameraList`,
     // 保存摄像头信息
     cmSaveCameraInfo: `/cameraInfo.action?method=saveCameraInfo`,
-    // 下载导入模板
+    // 导入摄像头列表
     cmImportCameras: `/cameraInfo.action?method=importCameras`,
+    // 导入摄像头列表
+    cmExportCameras: `/cameraInfo.action?method=exportCameras`,
     // 下载导入模板
     cmDownloadTemplet: `/cameraInfo.action?method=downloadTemplet`,
     // 摄像头管理end

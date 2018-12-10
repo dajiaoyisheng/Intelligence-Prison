@@ -114,14 +114,90 @@ export function get(url, params = {}) {
  * @param data
  * @returns {Promise}
  */
-export function post(url, data = {}) {
+export function post(url, data = {}, header = {}) {
     return new Promise((resolve, reject) => {
-        axios.post(`${baseURL}${url}`, data)
+        axios.post(`${baseURL}${url}`, data, header)
             .then(response => {
                 resolve(response);
             }, err => {
                 reject(err)
             })
+    })
+}
+
+/**
+ * 创建axios上传实例
+ */
+let instance = axios.create({
+    timeout: 10000,
+    headers:{"Conten-Tyep":"multipart/form-data"}
+});
+// 配置instance发送请求时携带cookie
+instance.defaults.withCredentials = false;
+
+instance.interceptors.response.use(response => {
+    // 对响应数据做点什么
+    store.commit("hideLoading");
+    const res = response.data;
+    if (res.status !== 0) {
+        Message({
+            message: res.statusinfo,
+            type: 'error',
+            duration: 5 * 1000
+        })
+        if (res.status == 999) {
+            window.location.href = "/#/login";
+        }
+    }
+    return response.data
+}, error => {
+    store.commit("hideLoading");
+    // 对响应错误做点什么
+    // 如果路由改变提示信息提示
+    if (error.message.search('timeout') !== -1) { // 超时error捕获
+        Message({
+            message: "请求超时",
+            type: 'error',
+            duration: 3 * 1000
+        })
+    } else {
+        Message({
+            message: error.message,
+            type: 'error',
+            duration: 3 * 1000
+        })
+    }
+    return Promise.reject(error)
+});
+
+/**
+ * 封装上传请求
+ * @param url
+ * @param data
+ * @returns {Promise}
+ */
+export function fileUpload(url, data = {}) {
+    return new Promise((resolve, reject) => {
+        instance.post(`${baseURL}${url}`, data, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            transformRequest: [function(data) {
+                return data
+            }],
+            onUploadProgress: function(e) {
+                var percentage = Math.round((e.loaded * 100) / e.total) || 0;
+                if (percentage < 100) {
+                    console.log(percentage + '%'); // 上传进度
+                }
+            }
+        })
+        .then(response => {
+            resolve(response);
+        }, err => {
+            reject(err)
+        })
     })
 }
 

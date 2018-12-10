@@ -4,9 +4,10 @@ import Vue from 'vue';
 import router from './router';
 // Vue.prototype.$ajxj = axios;
 // 对get,post进行了封装
-import { post, get } from './axios'
+import { post, get, fileUpload } from './axios'
 Vue.prototype.$post = post;
 Vue.prototype.$get = get;
+Vue.prototype.$fileUpload = fileUpload;
 import 'es6-promise/auto'
 import store from './vuex/store';
 // 调用,env根据环境赋值

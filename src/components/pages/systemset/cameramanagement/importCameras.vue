@@ -7,7 +7,7 @@
             <el-row :gutter="5">
                 <el-col :span="6"><span class="importMeta">请选择导入文件:</span></el-col>
                 <el-col :span="12">
-                    <el-upload action="auto" :file-list="files" :http-request="uploadSectionFile" :auto-upload="false">
+                    <el-upload class="upload-demo" multiple action="auto" :limit="3" :on-exceed="handleExceed" :file-list="files" :on-change="handleChange" :auto-upload="false">
                         <el-button size="mini" type="primary" slot="trigger">选择文件</el-button>
                         <el-button size="mini" type="success" @click="submitUpload">上传到服务器</el-button>
                     </el-upload>
@@ -25,30 +25,31 @@ export default {
     data() {
       return {
             files: [],
-            importURL: "",
             downloadtURL: ""
       }
     },
-    mounted() {
-        this.initActionUrl();
-    },
     methods: {
         /** 初始化请求地址 */
-        initActionUrl: function() {
-            this.importURL = this.$store.state.env + this.urlconfig.cmImportCameras;
+        initDatas: function() {
+            this.files = [];
             this.downloadtURL = this.$store.state.env + this.urlconfig.cmDownloadTemplet;
         },
-        uploadSectionFile(param) {
-
+        /** 文件超出个数限制时的钩子 */
+        handleExceed(files, fileList) {
+            this.$message.warning(`当前限制选择3个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+        },
+        handleChange: function(file, fileList) {
+            this.files = fileList;
         },
         /** 提交导入文件 */
         submitUpload: function() {
+            var files = this.files;
             var param = new FormData();
-            param.append("file", this.files);
-            param.append("name", "ziguiyu");
-            param.append("Content-Type", "multipart/form-data");
+            for (var i = 0; i < files.length; i++) {
+                param.append('importFile', files[i].raw);
+            }
 
-            this.$post(this.urlconfig.cmImportCameras, param).then((res) => {
+            this.$fileUpload(this.urlconfig.cmImportCameras, param).then((res) => {
                 if (res.status === 0) {
                     this.$message.success(res.statusinfo);
                 }
