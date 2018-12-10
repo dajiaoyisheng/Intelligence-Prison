@@ -1,24 +1,38 @@
 //树节点操作，树组件位置src\components\commons\tree.vue，如想修改请参考http://element-cn.eleme.io/#/zh-CN/component/tree
+// import Vue from 'vue';
 export default {
     methods: {
-        //拖拽节点开始
-        handleDragStart(node, ev) {
-            this.startDragNode = true;
-        },
-        //拖拽节点结束
-        handleDragEnd(draggingNode, dropNode, dropType, ev) {
-            //拖拽的对象
-            this.draggingNode = draggingNode;
-        },
-        //点击左侧树节点
-        handleNodeClick(data, checkedNode, indeterminate) {
-            this.PrisonareaObjtree = [data];
+        /** 点击左侧监区树节点 */
+        handleNodeClick: function(checkedNode) {
             this.selectedTreeObj = checkedNode;
+            let data = { "id": checkedNode.id, "nodeType": checkedNode.nodeType };
+
+            this.$post(this.urlconfig.pmGetChildrenLevelOne, data).then((res) => {
+                if (res.status === 0) {
+                    this.PrisonareaObjtree = res.data;
+                }
+            }).catch((error) => {
+                console.log(error);
+            }).then(() => {
+                // todo somthing...
+            });
         },
-        //点击右侧树节点
-        handleObjectNodeClick(data, checkedNode, indeterminate) {
-            this.objectInfo = data;
+        /** 查询监区节点具体信息 */
+        handleObjectNodeClick: function(node) {
+            let nodeType = node.nodeType;
+            let data = {"id" : node.id, "nodeType" : nodeType};
+
+            this.$post(this.urlconfig.pmGetTreeNodeInfo, data).then((res) => {
+                if (res.status === 0) {
+                    this.objectInfo = res.data;
+                }
+            }).catch((error) => {
+                console.log(error);
+            }).then(() => {
+                // todo somthing...
+            });
         },
+
         //添加左侧树节点
         addTreeNode() {
             let _this = this;
@@ -30,7 +44,7 @@ export default {
                 return false;
             }
 
-            let type = this.selectedTreeObj.data.nodeType;
+            let type = this.selectedTreeObj.nodeType;
             if (type != "02" && type != "03" && type != "04") {
                 this.$alert("当前节点不能添加子节点", {
                     confirmButtonText: "确定",
@@ -80,7 +94,7 @@ export default {
                 return false;
             }
 
-            let data = _this.selectedTreeObj.data;
+            let data = _this.selectedTreeObj;
 
             this.$prompt(data.label, "提示", {
                     confirmButtonText: "确定",
@@ -139,6 +153,16 @@ export default {
                         message: "已取消操作"
                     });
                 });
+        },
+
+        //拖拽节点开始
+        handleDragStart(node, ev) {
+            this.startDragNode = true;
+        },
+        //拖拽节点结束
+        handleDragEnd(draggingNode, dropNode, dropType, ev) {
+            //拖拽的对象
+            this.draggingNode = draggingNode;
         },
         //设置树节点中relationed字段，给树添加选中状态
         setNodeRelationed(nodes, pri_code, uuid) {

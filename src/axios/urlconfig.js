@@ -127,7 +127,6 @@ let urlconfig = {
     // 服务管理end
     // 系统设置end
 
-
     // 摄像头管理begin
     // 获取所属区域
     cmGetPrisonSubRegions: `/prisonRegion.action?method=getPrisonRegionTree`,
@@ -145,7 +144,6 @@ let urlconfig = {
     cmDownloadTemplet: `/cameraInfo.action?method=downloadTemplet`,
     // 摄像头管理end
 
-
     //工作台begin
     //犯人总数
     wkGetPrisonersData: `/workBench.action?method=getPrisonersData`,
@@ -161,9 +159,21 @@ let urlconfig = {
     //获取日志列表
     smGetLoggers: `/systemLog.action?method=getLoggers`,
     //系统管理end
+
+    //基础功能begin
     //用户登录
     login: `/login.action?method=doLogin`,
     //用户注销操作
-    logout: `/login.action?method=doLogout`
+    logout: `/login.action?method=doLogout`,
+    //基础功能end
+
+    //系统管理begin
+    // 加载左侧监区树形
+    pmLoadTree: `/prisonRegion.action?method=getPrisonRegionTree`,
+    // 获取树形直接下级
+    pmGetChildrenLevelOne: `/prisonRegion.action?method=getChildrenLevelOne`,
+    // 查询节点信息
+    pmGetTreeNodeInfo: `/prisonRegion.action?method=getTreeNodeInfo`,
+    //系统管理end
 }
 export default urlconfig
