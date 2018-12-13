@@ -4,8 +4,10 @@
     <section class="aside-l fl inbl">
       <div class="h aside-l-h clearfix">
         <div class="l fl">
+          <!--  
           <img :src="images.exportgroup">
           <img :src="images.importgroup">
+          -->
         </div>
         <div class="r fr">
           <img :src="images.add"  @click="addTreeNode()"  alt="添加">
@@ -14,8 +16,14 @@
         </div>
       </div>
       <div class="left-tree">
-        <v-tree ref="leftTree" :tree-data="Prisonareatree" @handle-node-click="handleNodeClick" highlight-current="true"></v-tree>
+        <v-tree ref="leftTree" :tree-data="Prisonareatree" @handle-node-click="handleNodeClick"></v-tree>
       </div>
+    </section>
+    <!-- 窗口 -->
+    <section>
+      <el-dialog :title="dialogTitle" :visible.sync="showDialog" width="800px" :before-close="beforeClose">
+          <prisonInfo ref="prisonItemInfo" :saveNodeCallBack="saveNodeCallBack"></prisonInfo>
+      </el-dialog>
     </section>
     <!-- 中 -->
     <section class="aside-r fr inbl">
@@ -67,23 +75,31 @@
           </div>
         </div>
         <div class="r fr inbl">
-          <div class="t line-word" title="对象">
-            <span></span>
-            <v-tree
-              ref="rightTree"
-              :draggable="true"
-              :default-expand-all="true"
-              :tree-data="PrisonareaObjtree"
-              @handle-drag-end="handleDragEnd"
-              @handle-drag-start="handleDragStart"
-              @handle-node-click="handleObjectNodeClick"
-            ></v-tree>
-          </div>
-          <div class="d line-word" title="属性">
-            <span></span>
-            <p><b>区域属性</b></p>
-            <p><span>名称:</span><span class="value" v-text="objectInfo.name"></span></p>
-          </div>
+          <el-card class="box-card" style="height: 400px; margin-bottom: 10px;">
+            <div slot="header" class="clearfix">
+              <span>对象</span>
+            </div>
+            <div>
+              <v-tree ref="rightTree" :draggable="true" :default-expand-all="true" :tree-data="PrisonareaObjtree"
+                      @handle-drag-end="handleDragEnd" @handle-drag-start="handleDragStart" @handle-node-click="handleObjectNodeClick">
+              </v-tree>
+            </div>
+          </el-card>
+          <el-card class="box-card" style="height: 200px;">
+            <div slot="header" class="clearfix">
+              <span>区域属性</span>
+            </div>
+            <div style="font-size: 14px;">
+              <el-row>
+                <el-col :span="6"><span>名称:</span></el-col>
+                <el-col :span="18"><span class="value" v-text="objectInfo.nodeName"></span></el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="6"><span>类型:</span></el-col>
+                <el-col :span="18"><span class="value" v-text="objectInfo.nodeTypeTitle"></span></el-col>
+              </el-row>
+            </div>
+          </el-card>
         </div>
       </div>
     </section>
@@ -91,23 +107,16 @@
 </template>
 
 <script>
-// 引入树形组件
 import vTree from "@/components/commons/tree.vue";
-// datas定义了一些变量
-import datas from "./datas.js";
-// mounted 页面绑定之后的操作，主要是绘图区的初始化，以及对象拖拽到图形上的后续操作
+import prisonInfo from "./prisonInfo.vue";
 import mounted from "./mounted.js";
-// 树操作
-import treeActions from "./treeActions.js";
-// 对接后台操作
 import actions from "./actions.js";
+import datas from "./datas.js";
 
 export default {
-  //vue中的混入操作，目的是将代码分散到多个文件中
-  mixins: [datas, mounted, treeActions, actions],
-  components: {
-    vTree
-  },
+  // VUE中的混入操作，将代码分散到多个文件中
+  mixins: [datas, mounted, actions],
+  components: { vTree, prisonInfo },
   created: function() {
     this.loadTree();
   },
@@ -182,16 +191,25 @@ img {
 }
 
 .aside-l {
-  width: 18%;
+  height: calc(100% - 60px);
+  width: 250px;
+  top: 60px;
+  left: 0;
+
+  z-index: 666;
+  overflow: auto;
+  position: fixed;
+  background: #fff;
+  display: inline-block;
+  border-right: 1px solid #e0e3ec;
 }
 
 .aside-r {
-  width: 82%;
+  width: calc(100% - 250px);
 }
 
 .aside-l-h {
   padding: 0 10%;
-  border-right: 1px solid #e0e3ec;
 }
 
 .aside-l.fl.inbl {
@@ -220,7 +238,7 @@ img {
 
 .aside-r-h-l {
   margin-left: 47px;
-  width: 66%;
+  width: calc(100% - 460px);
 }
 
 .aside-r-h-l .l {
@@ -229,6 +247,7 @@ img {
 
 .aside-r-h-l .r {
   width: 50%;
+  text-align: right;
 }
 
 .aside-r-h-l .l img,
@@ -292,7 +311,7 @@ img {
 }
 
 .main .l {
-  width: 66%;
+  width: calc(100% - 370px);
 }
 
 .main .r {
@@ -345,4 +364,13 @@ img {
 .el-color-picker__trigger {
   border: none;
 }
+
+#prisonmanagement .el-dialog__body {
+  padding: 10px 20px;
+}
+
+#prisonmanagement .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+  }
 </style>

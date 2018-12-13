@@ -8,6 +8,7 @@
     :expand-on-click-node="false"
     :check-on-click-node="true"
     :check-strictly="true"
+    :highlight-current="true"
     @node-drag-start="handleDragStart"
     @node-drag-end="handleDragEnd"
     @node-drag-enter="handleDragEnter"
@@ -17,12 +18,12 @@
   >
     <span class="custom-tree-node" slot-scope="{ node, data }">
       <span :class="data.relationed">
-        <i :class="data.icon"></i>
-        {{ data.label }}
+        <i :class="data.icon"></i>{{ data.label }}
       </span>
     </span>
   </el-tree>
 </template>
+
 <script>
 export default {
   data() {
@@ -90,6 +91,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .custom-tree-node {
   flex: 1;
@@ -104,5 +106,3 @@ export default {
   color: #00bff3;
 }
 </style>
-
-

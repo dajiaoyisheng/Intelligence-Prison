@@ -18,7 +18,33 @@ import importgroup from "@/assets/importgroup.png";
 export default {
     data() {
         return {
-            images: {
+            showDialog: false,         // 是否弹出新增/编辑树节点窗口
+            dialogTitle: "新增节点",    // 新增/编辑树节点窗口标题名称
+            Prisonareatree: [],        // 左侧监狱树形对象
+            selectedTreeObj: null,     // 左侧选中树形节点
+            objectInfoLeft: {},        // 左侧树形节点信息
+            PrisonareaObjtree: [],     // 右侧下级树形对象
+            objectInfo: {},            // 右侧树形节点信息
+
+            maxexpandId: 95,            // 最大扩展
+            textColor: "#409EFF",       // 文本颜色
+            borderColor: "#409EFF",     // 边框颜色
+            drawObj: null,              // 绘制对象
+            lineWidth: 1,               // 线条宽度
+            strokeStyle: "#ff0000",     // 样式
+            shapeType: "rect",          // 模型类型
+            fileList: [],               // 文件列表
+            isDrawCamera: false,        // 是否绘制摄像头
+            backgroundImage: null,      // 背景图片
+            cameraImg: new Image(),     // 创建图片
+            startDragNode: false,       // 是否拖动节点
+            draggingNode: null,         // 被拖动的节点
+            mouseOveredGraph: null,     // 鼠标移动到的图形
+            mouseClickedGraph: null,    // 鼠标点击的图形
+            relationships: {},          // 存储对象和图形的关系
+            currUUID: null,             // 当前选中图形的uuid
+
+            images: {                   // 图标对象集合
                 add: add,
                 del: del,
                 edit: edit,
@@ -35,29 +61,7 @@ export default {
                 colorborder: colorborder,
                 exportgroup: exportgroup,
                 importgroup: importgroup
-            },
-            message: "监区管理",
-            maxexpandId: 95,
-            textColor: "#409EFF",       // 文本颜色
-            borderColor: "#409EFF",     // 边框颜色
-            drawObj: null,              // 绘制对象
-            lineWidth: 1,               // 线条宽度
-            strokeStyle: "#ff0000",     // 样式
-            shapeType: "rect",          // 模型类型
-            fileList: [],               // 文件列表
-            isDrawCamera: false,        // 是否绘制摄像头
-            backgroundImage: null,      // 背景图片
-            Prisonareatree: [],         // 监区树对象
-            PrisonareaObjtree: [],      // 监区树对象
-            selectedTreeObj: null,      // 要编辑的左侧树节点
-            objectInfo: {},             // 选中的父对象
-            cameraImg: new Image(),     // 创建图片
-            startDragNode: false,       // 是否拖动节点
-            draggingNode: null,         // 被拖动的节点
-            mouseOveredGraph: null,     // 鼠标移动到的图形
-            mouseClickedGraph: null,    // 鼠标点击的图形
-            relationships: {},          // 存储对象和图形的关系
-            currUUID: null              // 当前选中图形的uuid
+            }
         };
     },
 }

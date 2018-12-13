@@ -174,6 +174,25 @@ let urlconfig = {
     pmGetChildrenLevelOne: `/prisonRegion.action?method=getChildrenLevelOne`,
     // 查询节点信息
     pmGetTreeNodeInfo: `/prisonRegion.action?method=getTreeNodeInfo`,
+    // 删除节点信息
+    pmDeleteTreeNode: `/prisonRegion.action?method=deleteTreeNode`,
+    // 获取状态
+    pmGetState: `/systemCode.action?method=getState`,
+    // 获取区域类型字典
+    pmGetAreaTypes: `/systemCode.action?method=getAreaType`,
+    // 根据父级获取所有区域
+    pmGetAreasByParent: `/prisonRegion.action?method=getAreasByParent`,
+    // 新增树形节点
+    pmSaveTreeNode: `/prisonRegion.action?method=saveTreeNode`,
     //系统管理end
+
+    // 视频监控begin
+    // 获取视频监控树形
+    tmGetPrisonareatree: `/prisonRegion.action?method=getPrisonRegionTree`,
+    // 获取视频监控人员
+    tmGetCriminals: `/videoMonitor.action?method=getCriminals`,
+    // 查询节点信息
+    tmGetTreeNodeInfo: `/prisonRegion.action?method=getTreeNodeInfo`,
+    // 视频监控end
 }
 export default urlconfig
