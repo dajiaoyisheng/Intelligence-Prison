@@ -14,6 +14,7 @@ export default {
         },
         /** 点击左侧监狱树形节点 */
         handleNodeClick: function(checkedNode) {
+            // this.getMapConfigData(checkedNode.id);
             this.selectedTreeObj = checkedNode;
             let data = { "id": checkedNode.id, "nodeType": checkedNode.nodeType };
 
@@ -25,13 +26,24 @@ export default {
             }).catch((error) => {
                 console.log(error);
             }).then(() => {
+              // mounted.mounted();
+
                 // todo somthing...
+
             });
 
             // 查询左侧树形节点信息
             this.$post(this.urlconfig.pmGetTreeNodeInfo, data).then((res) => {
                 if (res.status === 0) {
                     this.objectInfoLeft = res.data;
+                    this.backgroundImage = this.objectInfoLeft.nodeMap;
+                    this.drawObj.setBackgroundPicture(this.objectInfoLeft.nodeMap);
+
+                    let dataArr = this.objectInfoLeft.nodeConfig.length > 10 ?JSON.parse(this.objectInfoLeft.nodeConfig):[];
+
+                    this.drawObj.updateNodeDataArr(dataArr);
+                    let relations = this.objectInfoLeft.nodeMapping.length > 10 ?JSON.parse(this.objectInfoLeft.nodeMapping):{};
+                    this.relationships = relations;
                     console.log(this.objectInfoLeft);
                 }
             }).catch((error) => {
@@ -160,7 +172,7 @@ export default {
             let _this = this;
             for (let i = 0; i < nodes.length; i++) {
                 let element = nodes[i];
-                if (element.pri_code == pri_code) {
+                if (element.id == pri_code) {
                     element["relationed"] = "relationed";
                     if (uuid != undefined) {
                         element["shapeUuid"] = uuid;
@@ -183,6 +195,44 @@ export default {
                     _this.deleteNodeRelationed(element.children, pri_code);
                 }
             }
-        }
+        },
+      saveMapConfig:function(item){
+        this.$confirm('是否保存?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+            let data = {"beanItem": JSON.stringify(item)};
+            this.$post(this.urlconfig.pmSaveMapConfigData, data).then((res) => {
+              if (res.status === 0) {
+                this.$message.success(res.statusinfo);
+              }
+            }).catch((error) => {
+              console.log(error);
+            }).then(() => {
+              // todo somthing...
+            });
+        }).catch((error) => {
+          console.log(error);
+        });
+
+      },
+      getMapConfigData:function(regionId){
+        let _this = this;
+        let data = { "priCode" : regionId};
+        this.$get(this.urlconfig.pmGetMapConfigData,data).then(res => {
+          if (res.status === 0) {
+            console.log(res.data);
+            _this.backgroundImage = res.data.priMap;
+            _this.configData = res.data.priConfig;
+            _this.relationships = res.data.priMapping;
+          }
+        }).catch((error) => {
+          console.log(error);
+        }).then(() => {
+          // todo something...
+        });
+      }
+
     }
 }

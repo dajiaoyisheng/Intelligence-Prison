@@ -115,20 +115,23 @@
   .login-wrap {
     height: 100%;
     background-image: url("../../assets/login/bg.jpg");
+    /* background-size: cover; */
     position: relative;
   }
 
   .login-wrap .login-cont {
-    width: 633px;
-    height: 445px;
+    width: 500px;
+    height: 348px;
     background-image: url("../../assets/login/bg1.png");
     background-repeat: no-repeat;
+    background-size: cover;
   }
 
   .login-wrap .login-cont .login-form {
-    width: 586px;
-    height: 393px;
+    width: 468px;
+    height: 312px;
     background-image: url("../../assets/login/bg2.png");
+    background-size: cover;
   }
 
   .login-wrap .login-cont,
@@ -140,16 +143,16 @@
   }
 
   .login-container {
-    padding: 28px 100px 15px 100px;
+    padding: 20px 15% 15px 15%;
   }
 
   .login-title-wrap {
-    height: 105px;
+    height: 84px;
   }
 
   .login-text {
-    height: 50px;
-    line-height: 50px;
+    height: 39px;
+    line-height: 39px;
   }
 
   .login-icon-text {
@@ -162,12 +165,12 @@
     color: #EFEFEF;
     font-family: MicrosoftYaHei;
     font-weight: bold;
-    letter-spacing: 20px;
+    letter-spacing: 12px;
   }
 
   .login-icon-text,
   .login-project-name {
-    padding-left: 87px;
+    padding-left: 15%;
   }
 
   .login-text .login-icon {
@@ -175,8 +178,8 @@
   }
 
   .project-name {
-    height: 55px;
-    line-height: 55px;
+    height: 44px;
+    line-height: 44px;
   }
 
   .login-btn-wrap {
@@ -190,7 +193,11 @@
   }
 
   .login-container .remember {
-    margin: 0px 0px 35px 80px;
+    margin: 0px 0px 20px 80px;
+  }
+
+  .el-form-item {
+    margin-bottom: 15px;
   }
 
 </style>

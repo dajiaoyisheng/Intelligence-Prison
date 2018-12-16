@@ -2,42 +2,36 @@
     <div id="prisonItemInfo">
         <el-form :label-position="labelPosition" label-width="122px" :model="form" :rules="rules" ref="form" class="demo-form">
             <el-row>
-                <el-col :span="12">
-                    <el-form-item label="节点名称" prop="nodeName">
-                        <el-input style="width: 220px;" v-model="form.nodeName" clearable></el-input>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <el-form-item label="节点类型" prop="nodeType">
-                        <el-select v-model="form.nodeType">
-                            <el-option v-for="item in nodeTypes" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
+                <el-form-item label="节点类型" prop="nodeType">
+                    <el-select v-model="form.nodeType">
+                        <el-option v-for="item in nodeTypes" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
+                    </el-select>
+                </el-form-item>
             </el-row>
             <el-row>
-                <el-col :span="12">
-                    <el-form-item label="节点状态" prop="nodeState">
-                        <el-select v-model="form.nodeState">
-                            <el-option v-for="item in states" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12" v-if="form.nodeType == '02'">
-                    <el-form-item label="监狱名称" prop="priName">
-                        <el-input style="width: 220px;" v-model="form.priName" clearable></el-input>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12" v-if="form.nodeType == '04'">
-                    <el-form-item label="区域类型" prop="areaType">
-                        <el-select v-model="form.areaType">
-                            <el-option v-for="item in areaTypes" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
+                <el-form-item label="节点名称" prop="nodeName">
+                    <el-input style="width: 220px;" v-model="form.nodeName" clearable></el-input>
+                </el-form-item>
+            </el-row>
+            <el-row v-if="form.nodeType == '02'">
+                <el-form-item label="监狱名称" prop="priName">
+                    <el-input style="width: 220px;" v-model="form.priName" clearable></el-input>
+                </el-form-item>
+            </el-row>
+            <el-row v-if="form.nodeType == '04'">
+                <el-form-item label="区域类型" prop="areaType">
+                    <el-select v-model="form.areaType">
+                        <el-option v-for="item in areaTypes" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
+                    </el-select>
+                </el-form-item>
             </el-row>
             <el-row>
-                <el-col :span="9" :offset="15">
+                <el-form-item label="是否启用" prop="nodeState">
+                    <el-checkbox v-model="form.nodeState"></el-checkbox>
+                </el-form-item>
+            </el-row>
+            <el-row>
+                <el-col :span="16" :offset="8">
                     <el-form-item>
                         <el-button size="small" @click="submitForm('form')" type="primary">保存</el-button>
                         <el-button size="small" @click="resetForm('form')">重置</el-button>
@@ -54,7 +48,6 @@ export default {
       return {
           isAddNode: true,          // 是否新增节点
           labelPosition: "right",   // 标题显示位置
-          states: [],               // 使用状态字典
           areaTypes: [],            // 区域类型字典
           nodeTypes: [],            // 节点类型字典
           parentNode: {},           // 选中节点对象
@@ -63,7 +56,7 @@ export default {
             nodeId: "",             // 树形节点编号
             nodeName: "",           // 树形节点名称
             orgNodeName: "",        // 原节点名称
-            nodeState: "",          // 节点使用状态
+            nodeState: true,          // 节点使用状态
             areaType: "",           // 区域类型信息
             nodeType: "",           // 节点类型信息
             priName: "",            // 所属监狱名称
@@ -82,7 +75,6 @@ export default {
             this.isAddNode = true;
             this.parentNode = checkedNode;
 
-            this.getState();
             this.getAreaType();
             this.setNodeDatas();
         },
@@ -91,22 +83,9 @@ export default {
             this.isAddNode = false;
             this.parentNode = checkedNode;
 
-            this.getState();
             this.getAreaType();
             this.setNodeDatas();
             this.getTreeNodeInfo();
-        },
-        /** 获取使用状态字典 */
-        getState: function() {
-            this.$get(this.urlconfig.pmGetState).then((res) => {
-                if (res.status === 0) {
-                    this.states = res.data;
-                }
-            }).catch((error) => {
-                console.log(error);
-            }).then(() => {
-                // todo somthing...
-            });
         },
         /** 获取区域类型字典 */
         getAreaType: function() {

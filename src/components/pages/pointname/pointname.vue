@@ -79,7 +79,7 @@
             <el-date-picker size="mini" v-model="parameter.pointDate" placeholder="选择日期" type="date" @change="queryPointNameTimes"></el-date-picker>
             <span style="font-size: 14px;">点名时间:</span>
             <el-select size="mini" v-model="parameter.pointTime">
-              <el-option v-for="item in pointTimes" :key="item.pnTime" :label="item.pnTime" :value="item.pnTime"></el-option>
+              <el-option v-for="(item, index) in pointTimes" :key="index" :value="item.pnTime">{{ item.pnTime }}(第{{ pointTimes.length - index }}次)</el-option>
             </el-select>
             <el-button size="mini" class="search-btn" @click="queryPointNameHis()">查询</el-button>
           </section>

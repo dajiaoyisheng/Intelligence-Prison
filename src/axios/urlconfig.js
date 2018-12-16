@@ -184,6 +184,11 @@ let urlconfig = {
     pmGetAreasByParent: `/prisonRegion.action?method=getAreasByParent`,
     // 新增树形节点
     pmSaveTreeNode: `/prisonRegion.action?method=saveTreeNode`,
+
+    //保存平面图配置
+    pmSaveMapConfigData:`/prisonRegion.action?method=uploadImage`,
+    //获取指定监区信息
+    pmGetMapConfigData:`/prisonRegion.action?method=getPrisonRegion`,
     //系统管理end
 
     // 视频监控begin
@@ -193,6 +198,10 @@ let urlconfig = {
     tmGetCriminals: `/videoMonitor.action?method=getCriminals`,
     // 查询节点信息
     tmGetTreeNodeInfo: `/prisonRegion.action?method=getTreeNodeInfo`,
+    // 查询区域摄像头
+    tmGetCameras: `/cameraInfo.action?method=getCameraListByPai`,
+    // 获取摄像头树形
+    tmGetCamerasTreeData: `/prisonRegion.action?method=getPrisonCamerasTree`,
     // 视频监控end
 }
 export default urlconfig

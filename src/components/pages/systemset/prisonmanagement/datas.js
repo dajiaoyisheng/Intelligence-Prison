@@ -14,6 +14,7 @@ import textA from "@/assets/text-a.png";
 import colorborder from "@/assets/colorborder.png";
 import exportgroup from "@/assets/exportgroup.png";
 import importgroup from "@/assets/importgroup.png";
+import mousepointer from "@/assets/mousepointer.png";
 
 export default {
     data() {
@@ -24,6 +25,7 @@ export default {
             selectedTreeObj: null,     // 左侧选中树形节点
             objectInfoLeft: {},        // 左侧树形节点信息
             PrisonareaObjtree: [],     // 右侧下级树形对象
+            currentNodeKey: "",     // 当前选中节点key
             objectInfo: {},            // 右侧树形节点信息
 
             maxexpandId: 95,            // 最大扩展
@@ -43,7 +45,7 @@ export default {
             mouseClickedGraph: null,    // 鼠标点击的图形
             relationships: {},          // 存储对象和图形的关系
             currUUID: null,             // 当前选中图形的uuid
-
+            configData :[],
             images: {                   // 图标对象集合
                 add: add,
                 del: del,
@@ -60,7 +62,8 @@ export default {
                 textA: textA,
                 colorborder: colorborder,
                 exportgroup: exportgroup,
-                importgroup: importgroup
+                importgroup: importgroup,
+                mousepointer: mousepointer
             }
         };
     },

@@ -4,7 +4,7 @@
     <section class="aside-l fl inbl">
       <div class="h aside-l-h clearfix">
         <div class="l fl">
-          <!--  
+          <!--
           <img :src="images.exportgroup">
           <img :src="images.importgroup">
           -->
@@ -21,7 +21,7 @@
     </section>
     <!-- 窗口 -->
     <section>
-      <el-dialog :title="dialogTitle" :visible.sync="showDialog" width="800px" :before-close="beforeClose">
+      <el-dialog :title="dialogTitle" :visible.sync="showDialog" width="450px" :before-close="beforeClose">
           <prisonInfo ref="prisonItemInfo" :saveNodeCallBack="saveNodeCallBack"></prisonInfo>
       </el-dialog>
     </section>
@@ -44,15 +44,16 @@
             >
               <img :src="images.importgroup">
             </el-upload>
-            <img :src="images.save" @click="tojson()" title="保存">
+            <img :src="images.save" @click="doSave()" title="保存">
           </div>
           <div class="r fr clearfix">
-            <img :src="images.del"      title="删除">
-            <img :src="images.div"      title="矩形"    @click="draw('Rectangle')">
-            <img :src="images.polygon"  title="多边形">
-            <img :src="images.oval"     title="椭圆"    @click="draw('Ellipse')">
+            <img :src="images.mousepointer" @click="doSelectOnly()" title="选中">
+            <img :src="images.div" @click="draw('Rectangle')" title="矩形">
+            <img :src="images.polygon" @click="draw('Polygon')" title="多边形">
+            <img :src="images.oval" @click="draw('Ellipse')" title="椭圆">
+            <img :src="images.camera" @click="draw('Camera')" title="摄像头">
             <!-- 绘制标签，可以使用固定大小的矩形 -->
-            <img :src="images.label"    title="标签"    @click="draw('text')">
+            <img :src="images.label" @click="draw('Text')" title="标签">
             <span class="text-color-wrap">
               <img :src="images.textA" title="文本颜色">
               <el-color-picker :popper-class="'color-picker-drop'" v-model="textColor" @change="changeTextColor"></el-color-picker>
@@ -61,17 +62,15 @@
               <img :src="images.colorborder" title="容器框颜色">
               <el-color-picker :popper-class="'color-picker-drop'" v-model="strokeStyle" @change="changeBorderColor"></el-color-picker>
             </span>
+            <img :src="images.del" @click="doRemove()" title="删除">
           </div>
-        </div>
-        <div class="aside-r-h-r fr text-center">
-          <el-button class="search-btn" size="small">保存</el-button>
         </div>
       </div>
       <div class="main">
         <div class="l fl inbl">
           <div ref="canvasContainer" class="actionImage">
             <!-- 画图区域 -->
-            <div ref="canvas" id="canvas"></div>
+            <div ref="canvas" id="canvas" ></div>
           </div>
         </div>
         <div class="r fr inbl">
@@ -80,8 +79,13 @@
               <span>对象</span>
             </div>
             <div>
-              <v-tree ref="rightTree" :draggable="true" :default-expand-all="true" :tree-data="PrisonareaObjtree"
-                      @handle-drag-end="handleDragEnd" @handle-drag-start="handleDragStart" @handle-node-click="handleObjectNodeClick">
+              <v-tree ref="rightTree"
+                      :draggable="true"
+                      :default-expand-all="true"
+                      :tree-data="PrisonareaObjtree"
+                      @handle-drag-end="handleDragEnd"
+                      @handle-drag-start="handleDragStart"
+                      @handle-node-click="handleObjectNodeClick">
               </v-tree>
             </div>
           </el-card>
@@ -119,12 +123,29 @@ export default {
   components: { vTree, prisonInfo },
   created: function() {
     this.loadTree();
+    //默认选中节点
+    this.loadDefaultTreeNode();
   },
   methods: {
-    /** 导出json */
-    tojson: function() {},
-    /** 上传文件之前的检查，目前有问题 */
-    checkTreeSelected: function() {
+    loadDefaultTreeNode(){
+        //TODO:选中节点
+        //TODO:加载平面图信息
+    },
+    doSave(){
+        let beanItem = {};
+        // let selectedNode = this.Prisonareatree.getSelected();
+        beanItem.id =this.selectedTreeObj.id;
+        beanItem.nodeType = this.selectedTreeObj.nodeType;
+        beanItem.imageData =this.backgroundImage;
+        beanItem.configData =this.drawObj.diagram.model.nodeDataArray;
+        beanItem.mappingData =this.relationships;
+        this.saveMapConfig(beanItem);
+    },
+
+    //导出json
+    tojson() {},
+    //上传文件之前的检查，目前有问题
+    checkTreeSelected() {
       if (this.selectedTreeObj == null) {
         this.$alert("请先选择树节点", {
           confirmButtonText: "确定",
@@ -167,13 +188,43 @@ export default {
     },
     /** 更改文字颜色 */
     changeTextColor: function(curTextColor) {
-      console.log(`changeTextColor:`, curTestColor);
+      this.drawObj.changeTextColor(curTextColor);
     },
     /** 更改图形边框颜色 */
     changeBorderColor: function(curBorderColor) {
-      if (this.mouseClickedGraph) {
-        let uuid = this.mouseClickedGraph.getAttr("uuid");
-      }
+      this.drawObj.changeBorderColor(curBorderColor);
+      // if (this.mouseClickedGraph) {
+      //   let uuid = this.mouseClickedGraph.getAttr("uuid");
+      // }
+    },
+    /** 删除选中图形*/
+    doRemove: function() {
+      let _this = this;
+      _this.$confirm(
+        "是否确定删除?",
+        "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+      }).then(() => {
+            _this.drawObj.doRemove();
+      }).catch(() => {
+        _this.$message({
+          type: "info",
+          message: "已取消操作"
+        });
+      });
+
+    },
+    addConnect:function(newData){
+      this.drawObj.updateData(newData);
+      this.$message({
+        type: "success",
+        message: "关联成功!"
+      });
+    },
+    doSelectOnly:function(){
+      this.drawObj.doSelectOnly();
     }
   }
 };
@@ -364,6 +415,7 @@ img {
 .el-color-picker__trigger {
   border: none;
 }
+
 
 #prisonmanagement .el-dialog__body {
   padding: 10px 20px;
