@@ -13,7 +13,7 @@ let urlconfig = {
     // 搜索
     ppSearch: `/criminalPosition.action?method=getPrisonerList`,
     //人员基本信息
-    ppGetPrisoner: `/criminalManager.action?method=getCriminal`,
+    ppGetPrisonerView: `/criminalManager.action?method=getCriminalView`,
     //人员照片信息
     ppGetPrionserPhoto: `/criminalPosition.action?method=getPrionserPhoto`,
     //当前预警信息

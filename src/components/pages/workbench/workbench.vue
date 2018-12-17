@@ -1,225 +1,88 @@
 <template>
   <div class="workbench-wrap w1200">
-    <!-- <section class="contentWrap clearfix"> -->
-    <!-- <section class="l fl">
-        <section class="item">
-          <div class="bench-item-header">
-            <span>犯人总数</span>
-          </div>
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix"><span>犯人总数</span></div>
           <div class="bench-item">
             <div class="bench-item-left v-c">
-              <router-link
-                class="num-big num-color"
-                to="/personnelposition"
-              >{{ criminalStatistics.personnum }}人</router-link>
+              <router-link class="num-big num-color" to="/personnelposition">{{ criminalStatistics.personnum }}人</router-link>
             </div>
             <div class="bench-item-right v-c">
               <ul>
                 <li v-for="item in criminalStatistics.prisonsers" :key="item.area">
                   <span>{{ item.area }}：</span>
-                  <router-link
-                    class="num-color word-width"
-                    :to="{path:'/personnelposition', query:{ area:item.area }}"
-                  >{{ item.pNumItem }}人</router-link>
+                  <router-link class="num-color word-width" :to="{path:'/personnelposition', query:{ area:item.area }}">{{ item.pNumItem }}人</router-link>
                 </li>
               </ul>
             </div>
           </div>
-        </section>
-        <section class="item">
-          <div class="bench-item-header">
-            <span>预警事件分类</span>
-          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="12">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix"><span>人员分类</span></div>
           <div class="bench-item">
             <template>
-              <ve-histogram
-                :data="benchChartbarData"
-                height="100%"
-                width="100%"
-                :extend="histogramExtend"
-                :settings="chartSettings"
-              ></ve-histogram>
+              <ve-pie width="100%" height="100%" :judge-width="true" :data="benchChartPieData" :extend="pieExtend" :after-config="pieAfterConfig"></ve-pie>
             </template>
           </div>
-        </section>
-        <section class="item item-pics">
-          <div
-            class="picS"
-            :class="{'curImageLayer' : key==0}"
-            v-for="(item, key) in picItems"
-            :key="key"
-            @click="displayBImg(item.pic, $event)"
-          >
-            <img src="@/assets/area1.png">
-          </div>
-          <div class="page">
-            <div class="el-pagination-wrap">
-              <pagination :total="count" @change="getPictureList"></pagination>
-            </div>
-          </div>
-        </section>
-      </section>
-      <section class="r fr">
-        <section class="item">
-          <div class="bench-item-header">
-            <span>人员分类</span>
-          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix"><span>预警事件分类</span></div>
           <div class="bench-item">
             <template>
-              <ve-pie
-                width="100%"
-                height="100%"
-                :judge-width="true"
-                :data="benchChartPieData"
-                :extend="pieExtend"
-                :after-config="pieAfterConfig"
-              ></ve-pie>
+              <ve-histogram :data="benchChartbarData" height="100%" width="100%" :extend="histogramExtend" :settings="chartSettings"></ve-histogram>
             </template>
           </div>
-        </section>
-        <section class="item">
-          <div class="bench-item-header">
-            <span>人员状态</span>
-          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="12">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix"><span>人员状态</span></div>
           <div class="bench-item p-status-wrap">
             <ul class="p-status clearfix">
               <li v-for="item in pStatus" :key="item.status">
                 <span>{{ item.status }}:</span>
-                <router-link
-                  class="num-color word-width"
-                  :to="{path:'/personnelposition', query:{ status:item.status }}"
-                >{{ item.pNum }}人</router-link>
+                <router-link class="num-color word-width" :to="{path:'/personnelposition', query:{ status:item.status }}">{{item.pNum }}人</router-link>
               </li>
             </ul>
           </div>
-        </section>
-        <section class="item item-displayPic-r">
-          <div class="curDisplayPic">
-            <img src="@/assets/area1.png">
-          </div>
-        </section>
-      </section> -->
-
-    <!-- </section> -->
-    <!-- 之前那样布局的写法实在麻烦,重写! -->
-    <section class="workbench-wrap-grid">
-      <section class="item">
-        <div class="bench-item-header">
-          <span>犯人总数</span>
-        </div>
-        <div class="bench-item">
-          <div class="bench-item-left v-c">
-            <router-link class="num-big num-color" to="/personnelposition">{{ criminalStatistics.personnum }}人</router-link>
-          </div>
-          <div class="bench-item-right v-c">
-            <ul>
-              <li v-for="item in criminalStatistics.prisonsers" :key="item.area">
-                <span>{{ item.area }}：</span>
-                <router-link class="num-color word-width" :to="{path:'/personnelposition', query:{ area:item.area }}">{{
-                  item.pNumItem }}人</router-link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-      <section class="item">
-        <div class="bench-item-header">
-          <span>人员分类</span>
-        </div>
-        <div class="bench-item">
-          <template>
-            <ve-pie width="100%" height="100%" :judge-width="true" :data="benchChartPieData" :extend="pieExtend"
-              :after-config="pieAfterConfig"></ve-pie>
-          </template>
-        </div>
-      </section>
-      <section class="item">
-        <div class="bench-item-header">
-          <span>预警事件分类</span>
-        </div>
-        <div class="bench-item">
-          <template>
-            <ve-histogram :data="benchChartbarData" height="100%" width="100%" :extend="histogramExtend" :settings="chartSettings"></ve-histogram>
-          </template>
-        </div>
-      </section>
-      <section class="item">
-        <div class="bench-item-header">
-          <span>人员状态</span>
-        </div>
-        <div class="bench-item p-status-wrap">
-          <ul class="p-status clearfix">
-            <li v-for="item in pStatus" :key="item.status">
-              <span>{{ item.status }}:</span>
-              <router-link class="num-color word-width" :to="{path:'/personnelposition', query:{ status:item.status }}">{{
-                item.pNum }}人</router-link>
-            </li>
-          </ul>
-        </div>
-      </section>
-      <section class="item item-pics">
-        <div class="picS" :class="{'curImageLayer' : key==0}" v-for="(item, key) in picItems" :key="key" @click="displayBImg(item.pic, $event)">
-          <img src="@/assets/area1.png">
-        </div>
-        <div class="page">
-          <div class="el-pagination-wrap">
-            <pagination :total="count" @change="getPictureList"></pagination>
-          </div>
-        </div>
-      </section>
-      <section class="item item-displayPic-r">
-        <div class="curDisplayPic">
-          <img src="@/assets/area1.png">
-        </div>
-      </section>
-    </section>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="24">
+        平面图
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
   export default {
-    components: {
-      pagination: () => import("@/components/commons/pagination.vue")
-    },
     data() {
       return {
-        criminalStatistics: {
+        pStatus: [],            // 人员状态列表
+        benchChartbarData: [],  // 预警事件分类
+        benchChartPieData: [],  // 人员分类列表
+        criminalStatistics: {   // 犯人统计列表
           personnum: "",
           prisonsers: []
         },
-        benchChartbarData: [],
-        benchChartPieData: [],
-        histogramExtend: {},
-        chartSettings: {
+        pieExtend: {},          // 人员分类列表图例
+        histogramExtend: {},    // 预警事件分类扩展
+        chartSettings: {        // 预警事件分类图例
           labelMap: {
             action: "违规行为",
             number: "个数",
             pNumber: "人数"
           }
-        },
-        pieExtend: {},
-        picItems: [{
-            priCode: "1"
-          },
-          {
-            priCode: "2"
-          },
-          {
-            priCode: "2"
-          },
-          {
-            priCode: "2"
-          },
-          {
-            priCode: "2"
-          },
-          {
-            priCode: "2"
-          }
-        ],
-        pStatus: [],
-        imgBlock: "",
-        count: 0
+        }
       };
     },
     mounted: function () {
@@ -232,56 +95,45 @@
     methods: {
       /** 获取犯人统计 */
       getPSum: function () {
-        this.$get(this.urlconfig.wkGetPrisonersData)
-          .then(res => {
-            if (res.status === 0) {
-              this.criminalStatistics = res.data;
-            }
-          })
-          .catch(e => {});
+        this.$get(this.urlconfig.wkGetPrisonersData).then(res => {
+          if (res.status === 0) {
+            this.criminalStatistics = res.data;
+          }
+        }).catch(e => {});
+      },
+      /** 获取人员分类 */
+      getPClass: function () {
+        this.$get(this.urlconfig.wkGetBenchChartPie).then(res => {
+          if (res.status === 0) {
+            this.benchChartPieData = res.data.pieData;
+            this.setPieExtend();
+          }
+        }).catch(e => {});
       },
       /** 预警事件分类 */
       getPreWarningClass: function () {
-        this.$get(this.urlconfig.wkGetBenchChartbarData)
-          .then(res => {
-            if (res.status === 0) {
-              this.benchChartbarData = res.data;
-              this.setHistogramExtend();
-            }
-          })
-          .catch(e => {});
-      },
-      /** 点击钻取监区 */
-      displayBImg: function (curPic, e) {
-        let curNode = e.currentTarget;
-        let nodeList = [];
-        let firstChild = curNode.parentNode.firstChild;
-        for (; firstChild; firstChild = firstChild.nextSibling) {
-          if (firstChild.nodeType === 1 && firstChild !== curNode) {
-            nodeList.push(firstChild);
+        this.$get(this.urlconfig.wkGetBenchChartbarData).then(res => {
+          if (res.status === 0) {
+            this.benchChartbarData = res.data;
+            this.setHistogramExtend();
           }
-        }
-        nodeList.map(function (val) {
-          val.classList.remove("curImageLayer");
-        });
-        curNode.classList.add("curImageLayer");
-        this.imgBlock = curPic;
+        }).catch(e => {});
+      },
+      /** 获取人员状态 */
+      getPStatus: function () {
+        this.$get(this.urlconfig.wkGetPStatus).then(res => {
+          if (res.status === 0) {
+            this.pStatus = res.data;
+          }
+        }).catch(e => {});
       },
       /** 获取监区平面图数据 */
       getPictureList: function () {
         // TODO:有待补充
       },
-      /** 获取人员分类 */
-
-      getPClass: function () {
-        this.$get(this.urlconfig.wkGetBenchChartPie)
-          .then(res => {
-            if (res.status === 0) {
-              this.benchChartPieData = res.data.pieData;
-              this.setPieExtend();
-            }
-          })
-          .catch(e => {});
+      /** 点击钻取监区 */
+      displayBImg: function (curPic, e) {
+        // TODO:有待补充
       },
       /** 数据转化为配置项结束后触发额外的处理 */
       pieAfterConfig: function (options) {
@@ -298,16 +150,6 @@
           };
         }
         return options;
-      },
-      /** 获取人员状态 */
-      getPStatus: function () {
-        this.$get(this.urlconfig.wkGetPStatus)
-          .then(res => {
-            if (res.status === 0) {
-              this.pStatus = res.data;
-            }
-          })
-          .catch(e => {});
       },
       /** 设置预警事件 */
       setHistogramExtend: function () {
@@ -451,130 +293,13 @@
       }
     }
   };
-
 </script>
 
 <style scoped>
-  /* .contentWrap {
-  margin-top: 20px;
-}
-
-.contentWrap .l,
-.contentWrap .r {
-  width: 49.17%;
-}
-
-.contentWrap .l .item,
-.contentWrap .r .item {
-  margin-bottom: 20px;
-  box-shadow: 0 2px 16px #e9ebed, 0 0 1px #e9ebed, 0 0 1px #e9ebed;
-} */
-  .workbench-wrap-grid {
-    display: grid;
-    /* 列 */
-    grid-template-columns: 1fr 1fr;
-    /* 列间距 */
-    grid-column-gap: 20px;
-    /* 行间距 */
-    grid-row-gap: 25px;
-    margin-top: 20px;
-  }
-.workbench-wrap-grid>section {
-  box-shadow: 0 2px 16px #e9ebed, 0 0 1px #e9ebed, 0 0 1px #e9ebed;
-}
-
-
-
-  .item-pics,
-  .item-displayPic {
-    height: 720px;
-    background: #fff;
-  }
-
-  .item-pics {
-    padding: 20px 3%;
-    position: relative;
-    background: #fff;
-  }
-
-  .picS {
-    width: 48%;
-    height: 213px;
-    margin-bottom: 10px;
-    border: 1px solid #e0e3ec;
-    display: inline-block;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .picS:nth-child(odd) {
-    float: left;
-  }
-
-  .picS:nth-child(even) {
-    float: right;
-  }
-
-  .curImageLayer:after {
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    content: attr(data-text);
-    transition: all 1s ease;
-    transform: translateY(0);
-    cursor: not-allowed;
-  }
-
-  .item-pics .page {
-    width: 100%;
-    float: none;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-  }
-
-  .el-pagination-wrap {
-    padding: 9px 0;
-  }
-
-  .item-pics .page .el-pagination {
-    padding: 2px 3%;
-  }
-
-  .picS img {
-    width: 100%;
-    height: 100%;
-  }
-
-  .itemWrap {
-    width: 50%;
-    box-shadow: 0 2px 16px #e9ebed, 0 0 1px #e9ebed, 0 0 1px #e9ebed;
-  }
-
-  .bench-item-header {
-    height: 35px;
-    line-height: 35px;
-    background-color: #fcfcfc;
-    font-size: 14px;
-    color: #666;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-    padding-left: 20px;
-  }
-
   .bench-item {
     height: 310px;
-    border-top: 1px solid #e6e6e6;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
     position: relative;
     padding: 10px 10%;
-    background: #fff;
   }
 
   .bench-item-left {
@@ -619,17 +344,6 @@
 
   .bench-item-right ul li:nth-child(even) {
     float: right;
-  }
-
-  .item-displayPic-r {
-    height: 760px;
-    background: #fff;
-  }
-
-  .curDisplayPic img {
-    width: 100%;
-    height: 100%;
-    margin-top: 110px;
   }
 
   .p-status-wrap {
@@ -688,7 +402,6 @@
     height: 40px;
     border-bottom: none;
   }
-
 </style>
 
 <style>
@@ -737,5 +450,4 @@
   .text-decoration {
     text-decoration: underline;
   }
-
 </style>

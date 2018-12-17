@@ -98,8 +98,7 @@
         <el-table-column label="预警所在区域" prop="warningArea"       min-width="170px"></el-table-column>
         <el-table-column label="预警视频"    fixed="right"             width="120px"      align="center">
           <template slot-scope="scope">
-            <el-button style="padding: 0px 15px;" @click="showVideo(scope.$index, scope.row)" size="mini" type="text">
-              <img :src="images.video" style="display: inline-block; line-height: 20px; vertical-align: middle;">
+            <el-button v-if="scope.row.prisonerNum != '' && scope.row.prisonerNum != null" style="padding: 0px 15px;" @click="showVideo(scope.$index, scope.row)" size="mini" type="text">
               <span style="display: inline-block; line-height: 20px; vertical-align: middle;">查看</span>
             </el-button>
           </template>
@@ -109,15 +108,19 @@
         <table-pagination :total="count" @change="changeCurrent" ref="posunusualPagination"></table-pagination>
       </div>
     </section>
+    <section>
+      <el-dialog title="人员定位" :visible.sync="isShowPosition" width="1100px" :before-close="beforePositionClose">
+          <v-position ref="vPosition"></v-position>
+        </el-dialog>
+    </section>
   </div>
 </template>
 
 <script>
-  import video from '@/assets/video.png';
   import tablePagination from '@/components/commons/tablePage.vue';
+  import position from "@/components/pages/personnelposition/position.vue";
 
   export default {
-    name: 'posunusual',
     data() {
       return {
         params: {
@@ -127,14 +130,12 @@
           superviseType: "",
           prisonerName: ""
         },
-        images: {
-          video: video
-        },
         count: 0,
         prisonerInfo: {},
         warningEventTypes: [],
         superviseTypes: [],
-        ppuTableDatas: []
+        ppuTableDatas: [],
+        isShowPosition: false,    // 是否弹出人员定位
       }
     },
     methods: {
@@ -207,9 +208,14 @@
       },
       /** 查看预警视频信息 */
       showVideo: function (index, row) {
-        this.$router.push({
-          path: "/personnelposition"
+        this.isShowPosition = true;
+        this.$nextTick(() => {
+            this.$refs.vPosition.getPrisonerBaseInfo(row.prisonerID);
         });
+      },
+      /** 关闭人员定位操作 */
+      beforePositionClose: function() {
+        this.isShowPosition = false;
       },
       /** 查看服刑人员信息 */
       showPrisoner: function (row) {
@@ -235,7 +241,8 @@
       this.getPosunusualItems();
     },
     components: {
-      tablePagination
+      "tablePagination": tablePagination,
+      "v-position": position
     }
   }
 </script>

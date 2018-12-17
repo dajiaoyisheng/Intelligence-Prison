@@ -23,6 +23,11 @@
           <prisonerInfo ref="prisonerInfo" :superviseType="superviseType" :criState="criState" :state="state" :prisonRegions="prisonRegions"></prisonerInfo>
         </el-dialog>
       </section>
+      <section>
+        <el-dialog title="人员定位" :visible.sync="isShowPosition" width="1100px" :before-close="beforePositionClose">
+          <v-position ref="vPosition"></v-position>
+        </el-dialog>
+      </section>
       <section class="el-table-wrap">
         <el-table :data="tableData" @selection-change="handleSelectionChange" style="width: 100%">
           <el-table-column type="selection"         width="55"></el-table-column>
@@ -40,9 +45,9 @@
           <el-table-column label="操作" width="255">
             <template slot-scope="scope">
               <div class="operating">
-                <router-link tag="span" :to="{path:'/personnelposition', query:{name:scope.row.prisonerName}}">
+                <el-button @click="showPosition(scope.$index, scope.row)" type="text">
                   <img :src="images.review">查看
-                </router-link>
+                </el-button>
                 <el-button style="padding: 0px 15px;" type="text" @click="initModifyInfo(scope.row)">
                   <img :src="images.edit">修改
                 </el-button>
@@ -65,12 +70,14 @@
   import edit from '@/assets/edit.png';
   import review from '@/assets/review.png';
   import tablePagination from '@/components/commons/tablePage.vue';
+  import position from "@/components/pages/personnelposition/position.vue";
   import prisonerInfo from '@/components/pages/systemset/prisonermanagement/prisonerInfo.vue';
 
   export default {
     components: {
-      prisonerInfo,
-      tablePagination
+      "v-position" : position,
+      "prisonerInfo" : prisonerInfo,
+      "tablePagination" : tablePagination
     },
     data() {
       return {
@@ -94,7 +101,8 @@
         superviseType: [],
         criState: [],
         state: [],
-        prisonRegions: []
+        prisonRegions: [],
+        isShowPosition: false,    // 是否弹出人员定位
       }
     },
     mounted() {
@@ -229,6 +237,17 @@
         }).catch((error) => {
           console.log(error);
         });
+      },
+      /** 查看人员定位功能 */
+      showPosition: function (index, row) {
+        this.isShowPosition = true;
+        this.$nextTick(() => {
+            this.$refs.vPosition.getPrisonerBaseInfo(row.criId);
+        });
+      },
+      /** 关闭人员定位操作 */
+      beforePositionClose: function() {
+        this.isShowPosition = false;
       }
     }
   }

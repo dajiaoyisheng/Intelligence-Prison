@@ -6,7 +6,9 @@
           <div class="login-text">
             <p class="login-icon-text">
               <img class="login-icon" :src="loginicon" alt="">&nbsp;
-              <span>用户登陆 | Admin Login</span>
+              <span>用户登录</span>
+              <span>&#124;</span>
+              <span class="login-title-en">Admin Login</span>
             </p>
           </div>
           <div class="project-name">
@@ -18,20 +20,24 @@
         <el-form :model="ruleForm2" :rules="rules2" ref="ruleForm2" label-position="left" label-width="80px" class="demo-ruleForm login-container">
           <!-- <h3 class="title">系统登录</h3> -->
           <el-form-item label="用户名:" prop="account">
-            <el-input type="text" v-model="ruleForm2.account" auto-complete="off" placeholder="账号"></el-input>
+            <el-input class="login-form-input" type="text" v-model="ruleForm2.account" auto-complete="off" placeholder="账号"></el-input>
           </el-form-item>
-          <el-form-item label="密码:" prop="checkPass">
-            <el-input type="password" v-model="ruleForm2.checkPass" auto-complete="off" placeholder="密码"></el-input>
+          <el-form-item class="login-password-wrap" label="密 码:" prop="checkPass">
+            <el-input class="login-form-input" type="password" v-model="ruleForm2.checkPass" auto-complete="off"
+              placeholder="密码"></el-input>
           </el-form-item>
-          <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox>
+          <!-- <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox> -->
+          <div class="remember">
+            <input id="remember-chekbox" class="remember-chekbox" type="checkbox" v-model="checked" checked>
+            <label for="remember-chekbox" class="remember-text">记住密码</label>
+            <!-- <span class="remember-text">记住密码</span> -->
+          </div>
           <el-form-item class="login-btn-wrap">
             <el-button class="login-btn" type="primary" @click.native.prevent="handleSubmit2" :loading="logining">登录</el-button>
           </el-form-item>
         </el-form>
-
       </div>
     </div>
-
   </div>
 </template>
 
@@ -126,7 +132,6 @@
     background-repeat: no-repeat;
     background-size: cover;
   }
-
   .login-wrap .login-cont .login-form {
     width: 468px;
     height: 312px;
@@ -158,14 +163,19 @@
   .login-icon-text {
     color: #88BDFA;
     font-family: DFPLiJinHeiW8;
-    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .login-title-en {
+    font-size: 12px;
   }
 
   .login-project-name {
     color: #EFEFEF;
     font-family: MicrosoftYaHei;
-    font-weight: bold;
-    letter-spacing: 12px;
+    /* font-weight: bold; */
+    font-size: 20px;
+    letter-spacing: 9px;
   }
 
   .login-icon-text,
@@ -175,6 +185,8 @@
 
   .login-text .login-icon {
     vertical-align: middle;
+    width: 15px;
+    height: 20px;
   }
 
   .project-name {
@@ -182,13 +194,12 @@
     line-height: 44px;
   }
 
-  .login-btn-wrap {
-    /* width: 306px; */
-    /* text-align: center; */
-  }
-
   .login-btn {
-    width: 100%;
+    width: 224px;
+    padding: 0 0;
+    height: 30px;
+    background-color: #2A76CD;
+    border: #2A76CD;
     /* margin-left: 82px; */
   }
 
@@ -196,8 +207,69 @@
     margin: 0px 0px 20px 80px;
   }
 
+  .login-container .remember .remember-chekbox {
+    vertical-align: middle;
+  }
+
+  .login-container .remember .remember-text {
+    font-size: 13px;
+    cursor: pointer;
+  }
+
   .el-form-item {
     margin-bottom: 15px;
+  }
+
+  .el-form--label-left .el-form-item__label {
+    text-align: right
+  }
+
+  .el-form-item.is-required .el-form-item__label:before {
+    content: ""
+  }
+</style>
+<style>
+  .login-wrap .login-form-input {
+    width: 224px;
+    height: 30px;
+  }
+
+  .login-wrap .login-form-input .el-input__inner {
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .login-wrap .el-form-item.is-required .el-form-item__label:before {
+    content: ""
+  }
+
+  .login-wrap .el-form--label-left .el-form-item__label {
+    text-align: right;
+  }
+
+  .el-form-item.is-success .el-input__inner {
+    /* border-color: rgba(136, 139, 145, 1) */
+  }
+
+  .login-wrap input:-internal-autofill-previewed,
+  .login-wrap input:-internal-autofill-selected,
+  textarea:-internal-autofill-previewed,
+  textarea:-internal-autofill-selected,
+  select:-internal-autofill-previewed,
+  select:-internal-autofill-selected {
+    background-color: #fff !important;
+  }
+
+  .login-wrap .el-form-item__label {
+    color: #181819;
+  }
+
+  .login-wrap .el-form-item.is-success .el-input__inner,
+  .el-form-item.is-success .el-input__inner:focus,
+  .el-form-item.is-success .el-textarea__inner,
+  .el-form-item.is-success .el-textarea__inner:focus {
+    /* background-color: rgba(136, 139, 145, 1) !important; */
+    border-color: rgba(136, 139, 145, 1);
   }
 
 </style>

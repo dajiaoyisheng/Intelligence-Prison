@@ -85,14 +85,14 @@
                 <el-table-column type="index"   width="50"></el-table-column>
                 <el-table-column label="编号"   align="center">
                   <template slot-scope="scope">
-                    <el-button @click="showVideo(scope.$index, scope.row)" type="text">
+                    <el-button @click="showPosition(scope.$index, scope.row)" type="text">
                       <span>{{ scope.row.criCode }}</span>
                     </el-button>
                   </template>
                 </el-table-column>
                 <el-table-column label="姓名"   align="center">
                   <template slot-scope="scope">
-                    <el-button @click="showVideo(scope.$index, scope.row)" type="text">
+                    <el-button @click="showPosition(scope.$index, scope.row)" type="text">
                       <span>{{ scope.row.criName }}</span>
                     </el-button>
                   </template>
@@ -103,13 +103,21 @@
         </el-aside>
       </el-container>
     </section>
+    <section>
+      <el-dialog title="人员定位" :visible.sync="isShowPosition" width="1100px" :before-close="beforePositionClose">
+        <v-position ref="vPosition"></v-position>
+      </el-dialog>
+    </section>
   </div>
 </template>
 
 <script>
+import position from "@/components/pages/personnelposition/position.vue";
+
 export default {
   data() {
     return {
+      isShowPosition: false,    // 是否弹出人员定位
       treeData: [],             // 左侧树形数据模型
       tableData: [],            // 监控人员数据模型
       checkedNode: null,        // 当前选中树形节点
@@ -204,10 +212,15 @@ export default {
       }
     },
     /** 查看人员定位功能 */
-    showVideo: function (index, row) {
-      this.$router.push({
-        path: "/personnelposition"
+    showPosition: function (index, row) {
+      this.isShowPosition = true;
+      this.$nextTick(() => {
+          this.$refs.vPosition.getPrisonerBaseInfo(row.criId);
       });
+    },
+    /** 关闭人员定位操作 */
+    beforePositionClose: function() {
+      this.isShowPosition = false;
     },
     /** 增加显示视频 */
     addShowVideo: function(ciId) {
@@ -248,6 +261,9 @@ export default {
     setEndTime: function(val) {
       this.params.endTime = val;
     }
+  },
+  components: {
+    "v-position" : position
   }
 }
 </script>

@@ -189,10 +189,6 @@ export default {
   color: #fff !important;
 }
 
-.nav-wrap .navWrapFull .el-submenu {
-  /* padding: 0 1%; */
-}
-
 .logoWrap {
   /* display: inline-block; */
   float: left;

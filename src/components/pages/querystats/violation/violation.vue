@@ -39,10 +39,10 @@
           <el-table-column prop="warningRule"       label="预警规则"      min-width="100px"></el-table-column>
           <el-table-column prop="warningTv"         label="预警视频"      width="100px">
             <template slot-scope="scope">
-              <div class="operating">
-                <router-link tag="span" to="/personnelposition">
-                  <img class="v-align-m" :src="images.video" alt=""><span> 查看</span>
-                </router-link>
+              <div class="operating" v-if="scope.row.prisonerID != '' && scope.row.prisonerID != null">
+                <el-button @click="showPosition(scope.$index, scope.row)" type="text">
+                  <span>查看</span>
+                </el-button>
               </div>
             </template>
           </el-table-column>
@@ -52,22 +52,25 @@
         </div>
       </section>
     </section>
+    <section>
+      <el-dialog title="人员定位" :visible.sync="isShowPosition" width="1100px" :before-close="beforePositionClose">
+          <v-position ref="vPosition"></v-position>
+        </el-dialog>
+    </section>
   </div>
 </template>
 
 <script>
-  import video from '@/assets/video.png';
   import tablePagination from '@/components/commons/tablePage.vue';
+  import position from "@/components/pages/personnelposition/position.vue";
 
   export default {
     components: {
-      tablePagination
+      "tablePagination" : tablePagination,
+      "v-position" : position
     },
     data() {
       return {
-        images: {
-          video: video
-        },
         parame: {
           startTime: new Date(new Date().setHours(0, 0, 0, 0)),
           endTime: new Date(new Date().setHours(24, 0, 0, 0)),
@@ -76,7 +79,8 @@
         },
         count: 0,
         ppuTableDatas: [],
-        warningEventTypes: []
+        warningEventTypes: [],
+        isShowPosition: false,    // 是否弹出人员定位
       }
     },
     mounted: function () {
@@ -107,7 +111,18 @@
           this.count = res.data.totalRows;
           this.ppuTableDatas = res.data.items;
         })
-      }
+      },
+      /** 查看人员定位功能 */
+      showPosition: function (index, row) {
+        this.isShowPosition = true;
+        this.$nextTick(() => {
+            this.$refs.vPosition.getPrisonerBaseInfo(row.prisonerID);
+        });
+      },
+      /** 关闭人员定位操作 */
+      beforePositionClose: function() {
+        this.isShowPosition = false;
+      },
     }
   }
 </script>
