@@ -46,6 +46,8 @@ export default {
             relationships: {},          // 存储对象和图形的关系
             currUUID: null,             // 当前选中图形的uuid
             configData :[],
+            showCameraBtn:false,
+            scale:1,
             images: {                   // 图标对象集合
                 add: add,
                 del: del,

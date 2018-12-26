@@ -59,7 +59,7 @@
                             </el-collapse-item>
                         </el-collapse>
                     </el-col>
-                    <el-col :span="5">照片</el-col>                    
+                    <el-col :span="5">照片</el-col>
                 </el-row>
             </el-tab-pane>
             <el-tab-pane label="当日预警" name="warning">
@@ -90,9 +90,11 @@
                         <el-button size="mini" type="primary" class="search-btn" @click="getHisActArea()">查询</el-button>
                     </el-col>
                 </el-row>
-                <el-row>
-                    <div v-if="actRecordTab == 'nowActArea'">
-                        当前平面图
+                <el-row style="width:100%; height:700px;">
+                    <div v-if="actRecordTab == 'nowActArea'" style="width:100%; height:700px;">
+                      <div ref="canvasContainer" style="width:1200px; height:700px;" >
+                          <div ref="canvas" id="canvasDiv" style="width:1200px; height:700px;"></div>
+                      </div>
                     </div>
                     <div v-show="actRecordTab == 'hisActArea'">
                         <el-table :data="pPHisTrackData" stripe style="width: 100%">
@@ -112,6 +114,7 @@
 </template>
 
 <script>
+import Draw from "@/draw/action";
 import tablePagination from '@/components/commons/tablePage.vue';
 
 export default {
@@ -125,6 +128,8 @@ export default {
             warningCount: 0,                // 当日预警数据总量
             pPHisTrackData: [],             // 历史活动区域记录
             pPHisTrackCount: 0,             // 历史活动区域总量
+            drawObj:null,
+            nowActivePriCode :null,
             params: {
                 startTime: new Date(new Date().setHours(0, 0, 0, 0)),
                 endTime: new Date(new Date().setHours(24, 0, 0, 0))
@@ -147,6 +152,7 @@ export default {
         handleActClick: function(tab, event) {
             if (this.actRecordTab == "nowActArea") {
                 this.getNowActArea();
+
             } else if (this.actRecordTab == "hisActArea") {
                 this.getHisActArea();
             }
@@ -159,6 +165,7 @@ export default {
             this.$post(this.urlconfig.ppGetPrisonerView, data).then(res => {
                 if (res.status === 0) {
                     this.criminal = res.data;
+
                 }
             })
         },
@@ -169,7 +176,7 @@ export default {
                 pageIndex: this.$refs.warningPagination.index,
                 pageSize: this.$refs.warningPagination.pageSize
             }
-            
+
             this.$post(this.urlconfig.ppGetTodayWarnings, data).then(res => {
                 if (res.status === 0) {
                     this.pPTableData = res.data.items;
@@ -179,7 +186,35 @@ export default {
         },
         /** 查询当前活动区域 */
         getNowActArea: function() {
+          let data = {
+            criId: this.criminal.criCode,
+          }
 
+          this.$post(this.urlconfig.ppGetCriCurrentAreaInfo, data).then((res) => {
+            if (res.status === 0) {
+              this.nowActivePriCode = res.data.paiCode;
+              this.initDrawObj();
+              this.getAreaMapInfo(res.data.psiCode);
+            }
+          }).catch((error) => {
+            console.log(error);
+          }).then(() =>{
+              // todo something...
+          });
+        },
+        getAreaMapInfo : function(psiCode){
+          // let data = {"nodeId":this.checkedNode.id, "nodeType":this.checkedNode.nodeType}
+          let data = {"id":psiCode, "nodeType":"03"};
+          //获取所属片区的信息，区域没有平面图
+          this.$post(this.urlconfig.tmGetTreeNodeInfo,data).then((res) => {
+              if(res.status == 0){
+                  this.drawMap(res.data);
+              }
+          }).catch((error) => {
+
+          }).then(()=>{
+
+          });
         },
         /** 查询历史活动区域 */
         getHisActArea: function() {
@@ -190,7 +225,7 @@ export default {
                 pageIndex: this.$refs.historyPagination.index,
                 pageSize: this.$refs.historyPagination.pageSize
             }
-            
+
             this.$post(this.urlconfig.ppGetHisActiveTrack, data).then(res => {
                 if (res.status === 0) {
                     this.pPHisTrackData = res.data.items;
@@ -208,11 +243,50 @@ export default {
             this.warningCount = 0;
             this.pPHisTrackData = [];
             this.pPHisTrackCount = 0;
-            this.params = { 
+            this.params = {
                 startTime: new Date(new Date().setHours(0, 0, 0, 0)),
                 endTime: new Date(new Date().setHours(24, 0, 0, 0))
             }
-        }
+        },
+        /** 初始化平面图区域 */
+        initDrawObj: function() {
+          let canvasContainerRect = this.$refs.canvasContainer.getBoundingClientRect();
+          let width =canvasContainerRect.width == 0 ? 1200: canvasContainerRect.width;
+          let height = canvasContainerRect.height == 0 ? 600: canvasContainerRect.height;
+
+          this.$refs.canvas.style.width = width  + "px";
+          this.$refs.canvas.style.height = height + "px";
+          this.drawMapObj = new Draw(this, "canvasDiv", width, height, true,
+            function(e, obj, prev) {
+
+            }, function (e, obj, prev){
+
+            }, function(e, obj, prev){
+
+            });
+
+        },
+        /** 执行画图操作 */
+        drawMap: function(data) {
+          let relations = data.nodeMapping.length > 10 ?JSON.parse(data.nodeMapping):{};
+          if(relations.currScale != undefined){
+            this.drawMapObj.diagram.scale = relations.currScale;
+          }
+          this.drawMapObj.resetPos();
+          let dataArr = data.nodeConfig.length > 10 ? JSON.parse(data.nodeConfig) : [];
+          this.drawMapObj.updateNodeDataArr(dataArr);
+          for (let i = dataArr.length - 1; i >= 0; i--) {
+            if(dataArr[i].category == "textTipsTemplate") continue;
+            if ((dataArr[i].pri_code == undefined) || (dataArr[i].pri_code == "") || (dataArr[i].pri_code == null)) {
+              this.drawMapObj.diagram.model.removeNodeData(dataArr[i]);
+            }
+          }
+          //add 标注当前活动区域
+          this.drawMapObj.addPrisonerIcon(this.nowActivePriCode);
+          this.drawMapObj.setBackgroundPicture(data.nodeMap);
+          this.drawMapObj.doSelectOnly();
+          this.drawMapObj.doShowOnly();
+        },
     },
     components: {
       tablePagination
@@ -267,7 +341,7 @@ export default {
       padding-right: 10px;
   }
 
-  #position #tab-nowActArea, 
+  #position #tab-nowActArea,
   #position #tab-hisActArea {
     height: 30px;
     line-height: 30px;

@@ -215,7 +215,7 @@ DragCreatingTool.prototype.insertPart = function(bounds) {
   // set the TransactionResult before raising event, in case it changes the result or cancels the tool
   this.transactionResult = this.name;
   this.stopTransaction();
-  // this.isEnabled = false;
+  this.isEnabled = false;
   return part;
 };
 

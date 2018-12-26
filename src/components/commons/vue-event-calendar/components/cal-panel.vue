@@ -8,23 +8,18 @@
     </div>
     <div class="cal-body">
       <div class="weeks">
-        <span
-          v-for="(dayName, dayIndex) in i18n[calendar.options.locale].dayNames"
-          class="item"
-          :key="dayIndex"
-          >
+        <span v-for="(dayName, dayIndex) in i18n[calendar.options.locale].dayNames" class="item" :key="dayIndex">
           {{i18n[calendar.options.locale].dayNames[(dayIndex + calendar.options.weekStartOn) % 7]}}
         </span>
       </div>
-      <div class="dates" >
+      <div class="dates">
         <div v-for="date in dayList" class="item" :key="date.date">
           <p style="font-size: 10px;" ref="dateNum" class="date-num" :class="{'is-selected-day': (isBeginEndDate(date.date,feedbackDayData.beginDate, feedbackDayData.endDate)), 'is-gray':!date.status}"
-            @click="handleChangeCurday(date)"
-            :style="{color: date.type=='2' ? festivalColor : (date.type=='1' ? restDayColor : (!date.status ? '#BCBDBF' : customColor))}">
+            @click="handleChangeCurday(date)" :style="{color: date.type=='02' ? festivalColor : (date.type=='01' ? restDayColor : (!date.status ? '#BCBDBF' : customColor))}">
             {{date.date.split('/')[2]}}</p>
           <span v-if="today == date.date" class="is-today" :style="{backgroundColor: customColor }" ></span>
-          <span v-if="date.type=='2'" class="is-festival"></span>
-          <span v-if="date.type=='1'" class="is-restday"></span>
+          <span v-if="date.type=='02'" class="is-festival"></span>
+          <span v-if="date.type=='01'" class="is-restday"></span>
         </div>
       </div>
     </div>
@@ -34,8 +29,8 @@
 <script>
 import i18n from '../i18n.js'
 import { dateTimeFormatter, isBeginEndDate} from '../tools.js'
-
 const inBrowser = typeof window !== 'undefined'
+
 export default {
   name: 'cal-panel',
   data () {
@@ -47,18 +42,9 @@ export default {
     }
   },
   props: {
-    events: {
-      type: Array,
-      required: true
-    },
-    calendar: {
-      type: Object,
-      required: true
-    },
-    feedbackDay: {
-      type: Object,
-      required: false
-    }
+    events: { type: Array, required: true },
+    calendar: { type: Object, required: true },
+    feedbackDay: { type: Object, required: false }
   },
   watch: {
     feedbackDay: function(val) {
@@ -167,14 +153,15 @@ export default {
   }
 }
 </script>
-<style scoped>
 
+<style scoped>
 .cal-wrapper {
   width: 414px;
   padding: 0;
   display: inline-block;
   border: 1px solid #e0e3ec;
 }
+
 .cal-wrapper .date-num {
   line-height: 37px;
   cursor: pointer;
@@ -191,16 +178,19 @@ export default {
   border-right: 1px solid #e0e3ec;
   border-bottom: 1px solid #e0e3ec;
 }
+
 .cal-wrapper .cal-header  > div {
   float: left;
   line-height: 20px;
   padding: 15px 0;
 }
+
 .cal-wrapper .cal-header .title {
   margin-left: 100px;
   margin-right: 100px;
   text-align: center;
 }
+
 .cal-wrapper .cal-header .l {
   text-align: left;
   width: 60px;
@@ -209,6 +199,7 @@ export default {
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
 .cal-wrapper .cal-header .r {
   text-align: right;
   width: 60px;
@@ -217,9 +208,11 @@ export default {
   user-select: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
 .cal-wrapper .cal-body {
   width: 414px;
 }
+
 .cal-wrapper .cal-body .weeks {
   width: 100%;
   overflow: hidden;
@@ -227,6 +220,7 @@ export default {
   font-size: 1rem;
   padding: 0 11px;
 }
+
 .cal-wrapper .cal-body .weeks .item {
   line-height: 35px;
   float: left;
@@ -237,6 +231,7 @@ export default {
   font-family:MicrosoftYaHei;
   font-weight:400;
 }
+
 .cal-wrapper .cal-body .dates {
   width: 414px;
   overflow: hidden;
@@ -244,6 +239,7 @@ export default {
   font-size: 1rem;
   padding: 0 11px;
 }
+
 .cal-wrapper .cal-body .dates .item {
   position: relative;
   float: left;
@@ -255,6 +251,7 @@ export default {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   border-top: 1px solid #e0e3ec;
 }
+
 .cal-wrapper .cal-body .dates .item .date-num {
   cursor: pointer;
   font-size: 1rem;
@@ -270,12 +267,15 @@ export default {
 .cal-wrapper .cal-body .dates .item.event {
   cursor: pointer;
 }
+
 .cal-wrapper .cal-body .dates .item.selected-day .is-event {
   background-color: #f29543;
 }
+
 .cal-wrapper .cal-body .dates .item .is-selected-day {
   border: 2px solid #59c4ee;
 }
+
 .cal-wrapper .cal-body .dates .item .is-festival {
   content: "";
   background-color: #fff1ef;
@@ -287,6 +287,7 @@ export default {
   margin-left: -28px;
   margin-top: -15px;
 }
+
 .cal-wrapper .cal-body .dates .item .is-restday {
   content: "";
   background-color: #eef9fd;
@@ -298,6 +299,7 @@ export default {
   margin-left: -28px;
   margin-top: -15px;
 }
+
 .cal-wrapper .cal-body .dates .item .is-today {
   content: "";
   background-color: #f29543;
@@ -312,12 +314,14 @@ export default {
   margin-left: -6px;
   margin-top: 8px;
 }
+
 .arrow-left.icon {
   color: #E0E3EC;
   position: absolute;
   left: 27px;
   margin-top: 10px;
 }
+
 .arrow-left.icon:before {
   content: "";
   position: absolute;
@@ -330,12 +334,14 @@ export default {
   -webkit-transform: rotate(-135deg);
   transform: rotate(-135deg);
 }
+
 .arrow-right.icon {
   color: #E0E3EC;
   position: absolute;
   right: 25px;
   margin-top: 10px;
 }
+
 .arrow-right.icon:before {
   content: "";
   position: absolute;
@@ -348,6 +354,4 @@ export default {
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
 }
-
 </style>
-

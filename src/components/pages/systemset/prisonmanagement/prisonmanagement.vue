@@ -30,7 +30,7 @@
       <div class="h clearfix">
         <div class="aside-r-h-l fl inbl clearfix">
           <div class="l fl">
-            <img :src="images.exportgroup" title="导出">
+            <!--<img :src="images.exportgroup" title="导出">-->
             <el-upload
               action
               ref="upload"
@@ -47,13 +47,13 @@
             <img :src="images.save" @click="doSave()" title="保存">
           </div>
           <div class="r fr clearfix">
-            <img :src="images.mousepointer" @click="doSelectOnly()" title="选中">
-            <img :src="images.div" @click="draw('Rectangle')" title="矩形">
-            <img :src="images.polygon" @click="draw('Polygon')" title="多边形">
-            <img :src="images.oval" @click="draw('Ellipse')" title="椭圆">
-            <img :src="images.camera" @click="draw('Camera')" title="摄像头">
+            <img id="selectBtn" :src="images.mousepointer" @click="doSelectOnly()" title="选中">
+            <img id="rectBtn" :src="images.div" @click="draw('Rectangle')" title="矩形">
+            <img id="polygonBtn" :src="images.polygon" @click="draw('Polygon')" title="多边形">
+            <img id="ellipseBtn" :src="images.oval" @click="draw('Ellipse')" title="椭圆">
+            <img id="cameraBtn" :src="images.camera" @click="draw('Camera')" v-if="showCameraBtn" title="摄像头">
             <!-- 绘制标签，可以使用固定大小的矩形 -->
-            <img :src="images.label" @click="draw('Text')" title="标签">
+            <img id="textTipBtn" :src="images.label" @click="draw('Text')" title="标签">
             <span class="text-color-wrap">
               <img :src="images.textA" title="文本颜色">
               <el-color-picker :popper-class="'color-picker-drop'" v-model="textColor" @change="changeTextColor"></el-color-picker>
@@ -119,18 +119,15 @@ import datas from "./datas.js";
 
 export default {
   // VUE中的混入操作，将代码分散到多个文件中
-  mixins: [datas, mounted, actions],
+  mixins: [datas,mounted, actions],
   components: { vTree, prisonInfo },
   created: function() {
+
     this.loadTree();
-    //默认选中节点
-    this.loadDefaultTreeNode();
   },
   methods: {
-    loadDefaultTreeNode(){
-        //TODO:选中节点
-        //TODO:加载平面图信息
-    },
+
+
     doSave(){
         let beanItem = {};
         // let selectedNode = this.Prisonareatree.getSelected();
@@ -138,7 +135,9 @@ export default {
         beanItem.nodeType = this.selectedTreeObj.nodeType;
         beanItem.imageData =this.backgroundImage;
         beanItem.configData =this.drawObj.diagram.model.nodeDataArray;
+        this.relationships.currScale = this.drawObj.diagram.scale;
         beanItem.mappingData =this.relationships;
+
         this.saveMapConfig(beanItem);
     },
 
@@ -162,10 +161,44 @@ export default {
       //将图片转成base64格式
       reader.readAsDataURL(file.raw);
       reader.onload = function(event) {
-        var base64txt = (_this.backgroundImage = event.target.result);
+        var base64txt = event.target.result;
+        _this.backgroundImage = base64txt;
         _this.drawObj.setBackgroundPicture(base64txt);
+        // console.log("压缩前："+base64txt.length);
+        // _this.suofang(base64txt,1.5,function(blob,data){
+        //   console.log(data.length);
+        //   _this.backgroundImage = data;
+        //   _this.drawObj.setBackgroundPicture(data);
+        // });
+
       };
     },
+
+    suofang : function(base64, bili, callback) {
+      console.log("执行缩放程序,bili=" + bili);
+      //处理缩放，转格式
+      var _img = new Image();
+      _img.src = base64;
+      _img.onload = function () {
+        var _canvas = document.createElement("canvas");
+        var w = this.width / bili;
+        var h = this.height / bili;
+        _canvas.setAttribute("width", w);
+        _canvas.setAttribute("height", h);
+        _canvas.getContext("2d").drawImage(this, 0, 0, w, h);
+        var base64 = _canvas.toDataURL("image/jpeg");
+        _canvas.toBlob(function (blob) {
+          if (blob.size > 1024 * 1024) {
+            suofang(base64, bili, callback);
+          } else {
+            callback(blob, base64);
+          }
+        }, "image/jpeg");
+      }
+    },
+
+
+
     /** 检查背景图是否被载入 */
     checkBackgroundImage: function() {
       this.$alert("请先导入平面图", {
@@ -216,6 +249,30 @@ export default {
       });
 
     },
+    refreshMap:function(res,checkedNode){
+      this.drawObj.diagram.toolManager.clickCreatingTool.isEnabled = false;
+
+      //监狱和监舍，清空
+      if(checkedNode.nodeType == "01" || checkedNode.nodeType == "04"){
+        this.backgroundImage = null;
+        this.drawObj.setBackgroundPicture("");
+        this.drawObj.updateNodeDataArr([]);
+        this.relationships = {};
+        return;
+      }
+
+      let relations = res.data.nodeMapping.length > 10 ?JSON.parse(res.data.nodeMapping):{};
+      if(relations.currScale != undefined){
+           this.drawObj.diagram.scale = relations.currScale;
+      }
+      this.drawObj.resetPos();
+      let dataArr = res.data.nodeConfig.length > 10 ?JSON.parse(res.data.nodeConfig):[];
+      this.drawObj.updateNodeDataArr(dataArr);
+
+      this.backgroundImage = res.data.nodeMap;
+      this.drawObj.setBackgroundPicture(this.objectInfoLeft.nodeMap);
+      this.relationships = relations;
+    },
     addConnect:function(newData){
       this.drawObj.updateData(newData);
       this.$message({
@@ -225,7 +282,13 @@ export default {
     },
     doSelectOnly:function(){
       this.drawObj.doSelectOnly();
+    },
+    selectPart(checkedNode){
+       this.drawObj.doSelectPart(checkedNode.id);
+    },dbClickBack(e,obj,pre){
+      console.log("双击回调");
     }
+
   }
 };
 </script>
@@ -324,7 +387,8 @@ img {
 }
 
 .main .actionImage {
-  min-height: 500px;
+  min-height: 00px;
+  height: 800px;
   background: #fff;
   width: 100%;
   filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale')";

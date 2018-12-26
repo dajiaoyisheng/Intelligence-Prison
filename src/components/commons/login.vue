@@ -50,8 +50,8 @@
         logining: false,
         loginicon: loginicon,
         ruleForm2: {
-          account: "admin",
-          checkPass: "123456"
+          account: "",
+          checkPass: ""
         },
         rules2: {
           account: [{
@@ -163,7 +163,7 @@
   .login-icon-text {
     color: #88BDFA;
     font-family: DFPLiJinHeiW8;
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .login-title-en {
@@ -200,7 +200,7 @@
     height: 30px;
     background-color: #2A76CD;
     border: #2A76CD;
-    /* margin-left: 82px; */
+    font-size: 12px;
   }
 
   .login-container .remember {

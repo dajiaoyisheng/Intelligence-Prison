@@ -1,6 +1,4 @@
 <template>
-  <!-- <div id="app"> -->
-  <!-- nav -->
   <div>
     <nav class="nav-wrap">
       <el-menu
@@ -14,7 +12,6 @@
         text-color="#909399"
         active-text-color="#fff"
       >
-        <!-- <div class="nav-left-wrap"> -->
         <div class="logoWrap">
           <img class="logo" :src="logo" alt>
           <img class="name" :src="name" alt>
@@ -67,40 +64,17 @@
             <router-link to="/systemset/systemmanagement">系统管理</router-link>
           </el-menu-item>
         </el-submenu>
-        <!-- </div> -->
-        <!-- <el-menu-item index="input">
-        </el-menu-item>-->
         <div class="nav-right-wrap clearfix fr">
-          <!-- <el-menu-item index="search"> -->
-          <el-input
-            class="nav-input fl clearfix"
-            size="mini"
-            placeholder="请输入内容"
-            suffix-icon="el-icon-search"
-            v-model="input"
-          ></el-input>
-          <!-- </el-menu-item> -->
-          <!-- <el-menu-item index="username">
-          <span>admin</span>
-          <img class="heard-icon-btn" :src="downopen" alt="">
-          </el-menu-item>-->
-          <el-submenu index="username" class="username fl">
-            <template slot="title">
-              <span>{{username}}</span>
-              <img class="heard-icon-arrow" :src="downopen" alt>
-            </template>
-            <el-menu-item index="2-1">选项1</el-menu-item>
-            <el-menu-item index="2-2">选项2</el-menu-item>
-            <el-menu-item index="2-3">选项3</el-menu-item>
-          </el-submenu>
-
+          <el-input class="nav-input fl clearfix" size="mini" placeholder="请输入内容" v-model="inputKey">
+            <i slot="suffix" class="el-input__icon el-icon-search" style="cursor: pointer;" @click="search()"></i>
+          </el-input>
+          <span class="username fl">
+            <span>{{username}}</span>
+          </span>
           <span index="loginout" class="loginout fl" @click="logout()">
-            <span>退出</span>
-            <img class="heard-icon-outlogin" :src="loginout" alt>
+            <span>退出</span><img class="heard-icon-outlogin" :src="loginout">
           </span>
         </div>
-        <!-- <div>admin</div>
-        <div>退出</div>-->
       </el-menu>
     </nav>
   </div>
@@ -111,19 +85,18 @@ import logo from "@/assets/logo.png";
 import name from "@/assets/name.png";
 import downopen from "@/assets/downopen.png";
 import loginout from "@/assets/loginout.png";
+import EventUtils from "@/components/commons/eventUtils.js";
+
 export default {
   name: "Header",
   data() {
     return {
-      logo: logo,
-      username: this.$store.state.loginUsername
-        ? this.$store.state.loginUsername
-        : "登录", // 如果没有登录则显示登录,注册,如果登录后则显示用户名
-      // username: "admin",// 如果没有登录则显示登录,注册,如果登录后则显示用户名
-      name: name,
+      username: this.$store.state.loginUsername ? this.$store.state.loginUsername : "登录", 
       loginout: loginout,
       downopen: downopen,
-      input: ""
+      logo: logo,
+      name: name,
+      inputKey: ""
     };
   },
   computed: {
@@ -131,23 +104,28 @@ export default {
       return this.$store.state.isFullNavWrap;
     }
   },
-  mounted: function() {},
-
   methods: {
     handleSelect(key, keyPath) {},
-    logout() {
-      this.$post(this.urlconfig.logout, {
-        username: this.$store.state.loginUsername
-      })
-        .then(res => {
-          if (res.status == 0) {
-            this.$store.commit("setUsername", "");
-            this.$router.push({ path: "/" });
-          }
-        })
-        .catch(e => {
-          console.log(e);
-        });
+    /** 注销 */
+    logout: function() {
+      this.$post(this.urlconfig.logout, { username: this.$store.state.loginUsername }).then(res => {
+        if (res.status == 0) {
+          this.$store.commit("setUsername", "");
+          this.$router.push({ path: "/" });
+        }
+      }).catch(e => {
+        console.log(e);
+      });
+    },
+    /** 搜索 */
+    search: function() {
+      let params = {priCode:'', paiCode:'',  prisoner:this.inputKey, supervisionType:'', criCurstate:''};
+      this.$router.push({
+        path: "/personnelposition",
+        query: {"isSkip":true, "params": params}
+      });
+
+      EventUtils.$emit("params", params);
     }
   }
 };
@@ -158,7 +136,6 @@ export default {
   background-color: rgb(47, 50, 60);
   height: 60px;
   position: fixed;
-  /* 因为: echart tooltip z-index:99 导航挑nav ele-ui messege z-index:2000 */
   z-index: 999;
   width: 100%;
   top: 0;
@@ -176,10 +153,6 @@ export default {
   padding: 0 2%;
 }
 
-/* .nav-wrap .navWrapFull .el-menu-item {
-    padding: 0 1%;
-  } */
-
 .el-menu-item:hover {
   color: #fff !important;
   background-color: #2f323c !important;
@@ -190,7 +163,6 @@ export default {
 }
 
 .logoWrap {
-  /* display: inline-block; */
   float: left;
   line-height: 60px;
   margin-right: 5%;
@@ -214,19 +186,10 @@ export default {
   margin-right: 10px;
 }
 
-/* .el-menu>li>a {
-    width: 48px;
-    height: 16px;
-    font-family: MicrosoftYaHei;
-    line-height: 15px;
-  } */
-
-/* 点击导航菜单时下面显示的横线 */
 .el-menu--horizontal > .el-menu-item.is-active {
   border-bottom: none;
 }
 
-/* 二级菜单 */
 .el-submenu__title {
   border-bottom-color: none !important;
 }
@@ -254,7 +217,6 @@ export default {
 }
 
 .nav-wrap .nav-right-wrap {
-  /* padding-right: 2%; */
   outline: none;
   width: 28%;
 }
@@ -269,16 +231,13 @@ export default {
   width: 50%;
   height: 60px;
   line-height: 64px;
-  /* float: left; */
   text-align: right;
-  /* margin-right: 0.8%; */
 }
 
 .nav-wrap .navWrapFull .nav-input {
   width: 200px;
 }
 
-.nav-wrap .username,
 .nav-wrap .loginout {
   width: 25%;
   text-align: center;
@@ -286,6 +245,15 @@ export default {
   line-height: 56px;
   font-size: 14px;
   cursor: pointer;
+  color: rgb(144, 147, 153);
+}
+
+.nav-wrap .username {
+  width: 25%;
+  text-align: center;
+  height: 56px;
+  line-height: 56px;
+  font-size: 14px;
   color: rgb(144, 147, 153);
 }
 
@@ -310,10 +278,6 @@ export default {
   text-align: left;
 }
 
-/* .nav-wrap .navWrapFull .nav-input {
-    margin-right: 2%;
-  } */
-
 img.heard-icon-arrow {
   width: 11px;
   height: 11px;
@@ -324,9 +288,8 @@ img.heard-icon-outlogin {
   height: 15px;
 }
 </style>
-// 写在下面是因为:写在scoped中设置不生效
+
 <style>
-/* 调整带有二级菜单的一级菜单位置偏下的问题 */
 .nav-wrap .el-menu--horizontal > .el-submenu .el-submenu__title {
   line-height: 64px;
 }
@@ -347,10 +310,6 @@ img.heard-icon-outlogin {
 .nav-wrap .el-menu--horizontal > .el-submenu {
   padding: 0 1.9%;
 }
-
-/* .nav-wrap .el-menu--horizontal>.el-submenu:hover {
-    color: #fff;
-  } */
 
 .nav-wrap .el-input--mini .el-input__inner {
   width: 150px;

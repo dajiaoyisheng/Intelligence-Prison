@@ -282,9 +282,17 @@
       },
       /** 跳转预警统计 */
       showVideo: function (index, row) {
-        this.$router.push({
-          path: "/personnelposition"
-        });
+        if (row.id == "01") {
+          this.$router.push({
+            path: "/querystats/posunusual",
+            query: {"isSkip":true, "warnType":"00"}
+          });
+        } else if (row.id == "02") {
+          this.$router.push({
+            path: "/querystats/violation",
+            query: {"isSkip":true, "warnType":"00"}
+          });
+        }
       },
     },
     mounted() {

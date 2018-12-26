@@ -23,7 +23,7 @@
               <el-input size="small" class="pp-input" v-model="parame.prisonerName" placeholder="请输入内容" clearable></el-input>
             </el-col>
             <el-col :span="2">
-              <el-button @click="getTableDatas" class="search-btn" size="small">查询</el-button>
+              <el-button @click="doQuery" class="search-btn" size="small">查询</el-button>
             </el-col>
           </el-row>
         </section>
@@ -92,15 +92,22 @@
       getPreWarnType: function() {
         this.$get(this.urlconfig.scmGetVWTypes).then((res) => {
           if (res.status === 0) {
-            if ((res.data != null) && (res.data.length > 0)) {
-              this.parame.warningEventType = res.data[0].sCode;
-            }
             this.warningEventTypes = res.data;
+            if (this.$route.query.isSkip == undefined) {
+              if ((res.data != null) && (res.data.length > 0)) {
+                this.parame.warningEventType = res.data[0].sCode;
+              }
+            }
           }
         })
       },
       /** 获取表格数据 */
       getTableDatas: function() {
+        if (this.$route.query.isSkip != undefined) {
+          let warnType = this.$route.query.warnType;
+          this.parame = {startTime:'', endTime:'',  warningEventType:warnType, prisonerName:''};
+        }
+
         let data = {
           params: JSON.stringify(this.parame),
           pageIndex: this.$refs.pagination.index,
@@ -123,6 +130,12 @@
       beforePositionClose: function() {
         this.isShowPosition = false;
       },
+      /** 查询操作 */
+      doQuery: function() {
+        this.$route.query.isSkip = undefined;
+        this.$refs.pagination.index = 1;
+        this.getTableDatas();
+      }
     }
   }
 </script>

@@ -2,6 +2,7 @@ export default {
     methods: {
         /** 加载左侧监狱树形 */
         loadTree: function() {
+          let _this = this;
             this.$get(this.urlconfig.pmLoadTree).then(res => {
                 if (res.status === 0) {
                     this.Prisonareatree = res.data;
@@ -9,15 +10,27 @@ export default {
             }).catch((error) => {
                 console.log(error);
             }).then(() => {
+              setTimeout(function(){
+                  _this.handleNodeClick(_this.Prisonareatree[0].children[0]);
+              },500);
+
                 // todo something...
             });
         },
         /** 点击左侧监狱树形节点 */
         handleNodeClick: function(checkedNode) {
+            // this.createDraw();
             // this.getMapConfigData(checkedNode.id);
             this.selectedTreeObj = checkedNode;
-            let data = { "id": checkedNode.id, "nodeType": checkedNode.nodeType };
+            this.$refs.leftTree.setCurrentKey(checkedNode.id);
 
+          let data = { "id": checkedNode.id, "nodeType": checkedNode.nodeType };
+          //显示摄像头
+          if(checkedNode.nodeType == "03" && checkedNode.children && checkedNode.children[0].nodeType == "04" ){
+            this.showCameraBtn = true;
+          }else{
+            this.showCameraBtn = false;
+          }
             // 加载右侧下级树形
             this.$post(this.urlconfig.pmGetChildrenLevelOne, data).then((res) => {
                 if (res.status === 0) {
@@ -36,15 +49,8 @@ export default {
             this.$post(this.urlconfig.pmGetTreeNodeInfo, data).then((res) => {
                 if (res.status === 0) {
                     this.objectInfoLeft = res.data;
-                    this.backgroundImage = this.objectInfoLeft.nodeMap;
-                    this.drawObj.setBackgroundPicture(this.objectInfoLeft.nodeMap);
+                    this.refreshMap(res,checkedNode);
 
-                    let dataArr = this.objectInfoLeft.nodeConfig.length > 10 ?JSON.parse(this.objectInfoLeft.nodeConfig):[];
-
-                    this.drawObj.updateNodeDataArr(dataArr);
-                    let relations = this.objectInfoLeft.nodeMapping.length > 10 ?JSON.parse(this.objectInfoLeft.nodeMapping):{};
-                    this.relationships = relations;
-                    console.log(this.objectInfoLeft);
                 }
             }).catch((error) => {
                 console.log(error);
@@ -54,6 +60,7 @@ export default {
         },
         /** 点击右侧下级树形节点 */
         handleObjectNodeClick: function(checkedNode) {
+            this.selectPart(checkedNode);
             let data = { "id" : checkedNode.id, "nodeType" : checkedNode.nodeType };
             this.$post(this.urlconfig.pmGetTreeNodeInfo, data).then((res) => {
                 if (res.status === 0) {
@@ -180,6 +187,23 @@ export default {
                 }
                 if (element.children) {
                     _this.setNodeRelationed(element.children, pri_code, uuid);
+                }
+            }
+        },
+        //删除树节点中relationed字段
+        removeNodeRelationed(nodes, pri_code) {
+            let _this = this;
+            for (let i = 0; i < nodes.length; i++) {
+                let element = nodes[i];
+                if (element.id == pri_code) {
+                    element["relationed"] = undefined;
+                    element["shapeUuid"] = undefined;
+                    // if (uuid != undefined) {
+                    //     element["shapeUuid"] = uuid;
+                    // }
+                }
+                if (element.children) {
+                    _this.removeNodeRelationed(element.children, pri_code);
                 }
             }
         },

@@ -216,7 +216,7 @@ PolygonDrawingTool.prototype.finishShape = function() {
     }
   }
   this.stopTool();
-  // this.isEnabled = false;
+  this.isEnabled = false;
 };
 
 /**

@@ -27,7 +27,7 @@
           <el-input size="mini" class="puu-input" v-model="params.prisonerName" placeholder="请输入姓名/编号" clearable></el-input>
         </el-col>
         <el-col :span="1">
-          <el-button size="mini" type="primary" class="search-btn" @click="getPosunusualItems()">查询</el-button>
+          <el-button size="mini" type="primary" class="search-btn" @click="doQuery()">查询</el-button>
         </el-col>
         <el-col :span="1">
           <el-button size="mini" type="primary" class="search-btn" @click="clear()">清空</el-button>
@@ -143,10 +143,13 @@
       getWarningEventTypes: function () {
         this.$get(this.urlconfig.spmGetPositionWarningType).then((res) => {
           if (res.status === 0) {
-            if ((res.data != null) && (res.data.length > 0)) {
-              this.params.warningEventType = res.data[0].sCode
-            }
             this.warningEventTypes = res.data;
+
+            if (this.$route.query.isSkip == undefined) {
+              if ((res.data != null) && (res.data.length > 0)) {
+                this.params.warningEventType = res.data[0].sCode
+              }
+            }
           }
         }).catch((error) => {
           console.log(error);
@@ -171,6 +174,11 @@
       },
       /** 获取定位异常清单 */
       getPosunusualItems: function () {
+        if (this.$route.query.isSkip != undefined) {
+          let warnType = this.$route.query.warnType;
+          this.params = {startTime:'', endTime:'',  warningEventType:warnType, superviseType:'00', prisonerName:''};
+        }
+
         let data = {
           params: JSON.stringify(this.params),
           pageIndex: this.$refs.posunusualPagination.index,
@@ -198,6 +206,7 @@
            sTypeTmp = this.superviseTypes[0].sCode;
         }
 
+        this.$refs.posunusualPagination.index = 1;
         this.params = {
           startTime: new Date(new Date().setHours(0, 0, 0, 0)),
           endTime: new Date(new Date().setHours(24, 0, 0, 0)),
@@ -205,6 +214,16 @@
           superviseType: sTypeTmp,
           prisonerName: ""
         }
+
+        this.$router.push({
+          path: "/querystats/posunusual"
+        });
+      },
+      /** 查询操作 */
+      doQuery: function() {
+        this.$refs.posunusualPagination.index = 1;
+        this.$route.query.isSkip = undefined;
+        this.getPosunusualItems();
       },
       /** 查看预警视频信息 */
       showVideo: function (index, row) {

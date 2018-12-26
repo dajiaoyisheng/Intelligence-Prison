@@ -12,23 +12,28 @@ export default {
               JSON.stringify(_this.PrisonareaObjtree)
             );
         };
+        this.removeRelationed = function(pricode){
+            if(pricode == "" || pricode == null) return;
+            _this.removeNodeRelationed(_this.PrisonareaObjtree, pricode);
+            _this.PrisonareaObjtree = JSON.parse(
+              JSON.stringify(_this.PrisonareaObjtree)
+            );
+        };
         this.setCurrNodeKey = function(pricode){
             _this.setNodeRelationed(_this.PrisonareaObjtree, pricode, _this.currUUID);
             _this.PrisonareaObjtree = JSON.parse(
               JSON.stringify(_this.PrisonareaObjtree)
             );
         };
-        this.drawObj = new Draw(
+        this.drawObj = new Draw(_this,
             "canvas",
             canvasContainerRect.width,
-            canvasContainerRect.height,
+            canvasContainerRect.height,false,
             function(e, obj, prev) {
                 //单击图形后的操作
                 let priCode = obj.data.pri_code;
-                if(priCode && priCode != null){
-                  // _this.currentNodeKey=priCode;
-                  // _this.handleNodeClick(_this.selectedTreeObj);
-                }
+                _this.$refs.rightTree.setCurrentKey(priCode);
+
                 _this.currUUID = obj.data.__gohashid;
                 _this.mouseClickedGraph = this;
             },
@@ -39,7 +44,6 @@ export default {
                 if (_this.startDragNode) {
                   let uuid = obj.data.__gohashid;
                   let nodeData = obj.data;
-                  console.log(nodeData);
                   console.log(nodeData);
                   _this.startDragNode = false;
                   _this.mouseOveredGraph = this;
@@ -53,21 +57,27 @@ export default {
                           if(nodeData.pri_code == pri_code) return ;
 
                           let isEdit = _this.drawObj.isEditData(pri_code);
-                          if(isEdit){
+                          if(isEdit || nodeData.pri_code != null){
+                            let content = "该图形已关联其他对象，是否覆盖?";
+                            if(isEdit){
+                              content = "其他图形已关联该对象，是否替代?";
+                            }
                             _this.$confirm(
-                              "已关联，是否覆盖?",
+                              content,
                               "提示", {
                                 confirmButtonText: "确定",
                                 cancelButtonText: "取消",
                                 type: "warning"
                             }).then(() => {
-                                //删除旧的
+                                //删除 关联该区域节点的其他图形
+                                _this.removeRelationed(nodeData.pri_code);
                                 _this.drawObj.removeData(pri_code,nodeData.category);
                                 //增加新的
                                 nodeData.pri_code = pri_code;
                                 nodeData.text = "";
                                 nodeData.angle =obj.angle;
                                 nodeData.strokeColor = "#00BFF3";
+                                nodeData.nodeType = treeType;
                                 _this.drawObj.updateData(nodeData);
 
                                 _this.setRelationed(pri_code);
@@ -86,6 +96,7 @@ export default {
                               nodeData.text = "";
                               nodeData.angle =obj.angle;
                               nodeData.strokeColor = "#00BFF3";
+                              nodeData.nodeType = treeType;
                               _this.addConnect(nodeData);
                               _this.setRelationed(pri_code);
                           }
@@ -93,13 +104,20 @@ export default {
 
                       }
                   } else if (nodeData.category === "cameraTemplate") {//摄像头关联
+
                       if (treeType == "05") {
+                        _this.drawObj.diagram.toolManager.clickCreatingTool.isEnabled = false;
                           if(nodeData.pri_code == pri_code) return ;
 
                           let isEdit = _this.drawObj.isEditData(pri_code);
-                          if(isEdit){
+
+                          if(isEdit || nodeData.pri_code != null){
+                            let content = "该图形已关联其他摄像头，是否覆盖?";
+                            if(isEdit){
+                                content = "其他图形已关联该摄像头，是否替代?";
+                            }
                             _this.$confirm(
-                              "已关联，是否覆盖?",
+                              content,
                               "提示", {
                                 confirmButtonText: "确定",
                                 cancelButtonText: "取消",
@@ -107,11 +125,13 @@ export default {
                             }).then(() => {
                                   //删除旧的
                                   _this.drawObj.removeData(pri_code,nodeData.category);
+                                  _this.removeRelationed(nodeData.pri_code);
                                   //增加新的
                                   nodeData.pri_code = pri_code;
                                   nodeData.cameraName = pri_name;
                                   nodeData.text = "";
                                   nodeData.cameraColor = "#00BFF3";
+                                  nodeData.nodeType = treeType;
                                   nodeData.angle =obj.angle;
                                   _this.drawObj.updateData(nodeData);
                                   _this.setRelationed(pri_code);
@@ -132,9 +152,11 @@ export default {
                               nodeData.text = "";
                               nodeData.angle =obj.angle;
                               nodeData.cameraColor = "#00BFF3";
+                              nodeData.nodeType = treeType;
                               _this.addConnect(nodeData);
                               _this.setRelationed(pri_code);
                           }
+                        _this.drawObj.diagram.toolManager.clickCreatingTool.isEnabled = true;
                       }
                   }
                   // else if (nodeData.category == "textTipsTemplate") {//标签

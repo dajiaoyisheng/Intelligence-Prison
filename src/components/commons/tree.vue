@@ -87,6 +87,12 @@ export default {
     },
     handleDragEnter(draggingNode, dropNode, ev) {
       this.$emit("handle-drag-enter", draggingNode, dropNode, ev);
+    },
+    setCurrentKey(key){
+      if(key == "" || key == null){
+        key = null;
+      }
+      this.$refs.tree.setCurrentKey(key);
     }
   }
 };

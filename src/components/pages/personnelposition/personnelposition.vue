@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import EventUtils from "@/components/commons/eventUtils.js";
 import position from "@/components/pages/personnelposition/position.vue";
 
 export default {
@@ -49,6 +50,7 @@ export default {
         priCode: '',
         paiCode: '',
         prisoner: '',
+        criCurstate: '',
         supervisionType: ''
       }
     }
@@ -56,6 +58,9 @@ export default {
   mounted: function() {
     this.getPriCodesData();
     this.getSupervisionTypes();
+    EventUtils.$on("params", (parameter) => {
+     this.headerSearchOn(parameter);
+    });
   },
   methods: {
     /** 获取监区列表 */
@@ -102,6 +107,26 @@ export default {
     },
     /** 获取人员列表 */
     getPPositionData: function() {
+      // 如果跳转进来，重新设置查询参数
+      if (this.$route.query.isSkip != undefined) {
+        if (this.$route.query.isSupervision != undefined) {
+          let supervisionType = this.$route.query.supervisionType;
+          this.params = {priCode:'', paiCode:'',  prisoner:'', supervisionType:supervisionType, criCurstate:''};
+        } else {
+          this.params = this.$route.query.params;
+          let data = { "priCode": this.params.priCode }
+
+          // 如果监区编码不为空，重查区域
+          if (this.params.priCode != "") {
+            this.$post(this.urlconfig.ppGetHouseData, data).then(res => {
+              if (res.status === 0) {
+                this.paiCodes = res.data
+              }
+            })
+          }
+        }
+      }
+
       let data = { "params" : JSON.stringify(this.params) }
       this.$post(this.urlconfig.ppSearch, data).then(res => {
         if (res.status === 0) {
@@ -123,6 +148,26 @@ export default {
       this.$nextTick(() => {
         this.$refs.vPosition.getPrisonerBaseInfo(row.criId);
       });
+    },
+    /** header组件搜索跳转 */
+    headerSearchOn: function(parameter) {
+      this.params = parameter;
+      let data = { "params" : JSON.stringify(this.params) }
+
+      this.$post(this.urlconfig.ppSearch, data).then(res => {
+        if (res.status === 0) {
+          this.pPositionData = res.data;
+          if (this.pPositionData.length > 0) {
+            let firstRow = this.pPositionData[0];
+            this.$refs.pPositionTable.setCurrentRow(firstRow);
+
+            let criId = this.pPositionData[0].criId;
+            this.$nextTick(() => {
+              this.$refs.vPosition.getPrisonerBaseInfo(criId);
+            });
+          }
+        }
+      })
     }
   }
 }

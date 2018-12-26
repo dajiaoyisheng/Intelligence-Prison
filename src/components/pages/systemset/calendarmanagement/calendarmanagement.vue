@@ -5,9 +5,9 @@
         <el-row>
           <el-col :span="21" class="cal-header-title"><span>日历管理</span></el-col>
           <el-col :span="3" class="cal-header-toolbar">
-            <el-button type="primary" size="mini" class="search-btn" @click="isShowHolidyDialog=true">节假日管理</el-button>
-            <el-dialog title="节假日管理" :visible.sync="isShowHolidyDialog" width="600px" :before-close="holidyDialogClose">
-              <v-holidyDialog :dateTypes='dateTypes' ref="holidyDialog" @ope-holidyDialog="listenMsgFromeChild"></v-holidyDialog>
+            <el-button type="primary" size="mini" class="search-btn" @click="showHolidayDialog">节假日管理</el-button>
+            <el-dialog title="节假日管理" :visible.sync="isShowHolidyDialog" width="600px">
+              <v-holidyDialog ref="holidyDialog" :dateTypes="dateTypes"></v-holidyDialog>
             </el-dialog>
           </el-col>
         </el-row>
@@ -254,15 +254,6 @@
           console.log(error);
         });
       },
-      /** 关闭节假日窗口前操作 */
-      holidyDialogClose: function (done) {
-        this.$confirm('确认关闭？').then(() => {
-          done();
-          // this.$refs.holidyDialog.initTableData();
-        }).catch((error) => {
-          console.log(error);
-        });
-      },
       /** 重置查询条件 */
       clear: function () {
         this.params.rangeTime = [new Date(0, 0, 0, 0, 0, 0), new Date(0, 0, 0, 23, 59, 59)];
@@ -271,15 +262,12 @@
         this.params.psDatetype = "";
         this.params.ruleType = "";
       },
-      /** 保存节假日管理弹层 */
-      listenMsgFromeChild: function (type, data) {
-        if (type === "save") {
-          console.log("保存", data);
-          this.isShowHolidyDialog = false;
-        } else {
-          console.log("取消", data);
-          this.isShowHolidyDialog = false;
-        }
+      /** 弹出节假日窗口 */
+      showHolidayDialog: function() {
+        this.isShowHolidyDialog = true;
+        this.$nextTick(() => {
+          this.$refs.holidyDialog.initDatas();
+        });
       }
     },
     mounted() {

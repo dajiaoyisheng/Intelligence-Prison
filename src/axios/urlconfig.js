@@ -22,11 +22,14 @@ let urlconfig = {
     ppGetCurrActiveArea: `/criminalPosition.action?method=getCurrActiveArea`,
     //历史活动区域
     ppGetHisActiveTrack: `/criminalPosition.action?method=getHisActiveTrack`,
+    //人员当前活动区域所属片区信息
+    ppGetCriCurrentAreaInfo: `/criminalPosition.action?method=getCriCurrentAreaInfo`,
+
     // 人员定位end
 
     // 人员点名begin
     // 获取人员点名导航树
-    pnGetPrisonareatree: `/prisonRegion.action?method=getPrisonRegionTree`,
+    pnGetPrisonRegionTree: `/prisonRegion.action?method=getPrisonRegionPointNameTree`,
     // 获取点名列表信息
     pnGetTabledatas: `/pointName.action?method=getPointNameDatas`,
     // 获取历史点名时间
@@ -92,6 +95,8 @@ let urlconfig = {
     scmGetDailyDates: `/priSchedule.action?method=getDailyDates`,
     // 获取特殊人员作息时间
     scmGetSpecialDates: `/priSchedule.action?method=getSpecialDates`,
+    // 获取当年节假日列表
+    scmGetCurrentYearDatas: `/priSchedule.action?method=getCurrentYearDatas`,
     // 日历管理end
     // 人员管理begin
     // 提交新增用户
@@ -142,6 +147,8 @@ let urlconfig = {
     cmExportCameras: `/cameraInfo.action?method=exportCameras`,
     // 下载导入模板
     cmDownloadTemplet: `/cameraInfo.action?method=downloadTemplet`,
+    // 下载失败记录
+    cmDownloadErrorFile: `/cameraInfo.action?method=downloadErrorFile`,
     // 摄像头管理end
 
     //工作台begin
@@ -153,6 +160,7 @@ let urlconfig = {
     wkGetBenchChartbarData: `/workBench.action?method=getWarnTypePrisoners`,
     //人员状态
     wkGetPStatus: `/workBench.action?method=getStatusPrisoners`,
+
     //工作台end
 
     //系统管理begin
@@ -172,6 +180,8 @@ let urlconfig = {
     pmLoadTree: `/prisonRegion.action?method=getPrisonRegionTree`,
     // 获取树形直接下级
     pmGetChildrenLevelOne: `/prisonRegion.action?method=getChildrenLevelOne`,
+    //获取第一监区
+    pmGetFirstPrisonInfo: `/prisonRegion.action?method=getFirstPrisonInfo`,
     // 查询节点信息
     pmGetTreeNodeInfo: `/prisonRegion.action?method=getTreeNodeInfo`,
     // 删除节点信息
@@ -193,7 +203,7 @@ let urlconfig = {
 
     // 视频监控begin
     // 获取视频监控树形
-    tmGetPrisonareatree: `/prisonRegion.action?method=getPrisonRegionTree`,
+    tmGetPrisonRegionWarningTree: `/prisonRegion.action?method=getPrisonRegionWarningTree`,
     // 获取视频监控人员
     tmGetCriminals: `/videoMonitor.action?method=getCriminals`,
     // 查询节点信息

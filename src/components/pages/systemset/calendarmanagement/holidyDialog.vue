@@ -1,355 +1,223 @@
 <template>
   <div id="holidyDialog">
-    <div id="tip">
+    <section id="tip">
       <span>请在表格中设置日期类型</span>
-    </div>
-    <!-- 日历 -->
-    <vue-event-calendar :events="demoEvents" :feedbackDay="feedbackDay" @day-changed="handleDayChanged" @month-changed="handleMonthChanged">
-    </vue-event-calendar>
-    <!-- 图例 -->
-    <div class="legend">
-      <div class="title">图例</div>
-      <div id="d1">
-        <span id="s1"></span>
-        <span>节假日</span>
-      </div>
-      <div id="d2">
-        <span id="s2"></span>
-        <span>非工作日</span>
-      </div>
-      <div id="d3">
-        <span id="s3"></span>
-        <span>工作日</span>
-      </div>
-    </div>
-    <!-- 操作 -->
-    <div class="action">
-      <span @click="addRow" class="pointer"><i class="el-icon-circle-plus-outline"></i>添加</span>
-    </div>
-    <!-- 表格 -->
-    <div class="events-table">
-      <div class="grid-head">
-        <table>
-          <thead>
-            <tr>
-              <th>名称</th>
-              <th>开始时间</th>
-              <th>结束时间</th>
-              <th>日期类型</th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-      <div class="grid-body">
-        <table>
-          <tbody>
-            <tr v-for="(event, index) in showEvents" :key="index">
-              <td @click="cellClick(index, 'title')" @keyup.enter="seen=null">
-                <el-input size="mini" v-model="event.title" autofocus="true" placeholder="输入名称" v-if="seen==('title'+index)"
-                  @blur="seen=null"></el-input>
-                <span style="margin-left: 10px" v-else>{{ event.title }}</span>
-              </td>
-              <td @click="cellClick(index, 'beginDate')" @keyup.enter="seen=null">
-                <el-date-picker size="mini" v-model="event.beginDate" type="date" placeholder="选择开始时间" v-if="seen==('beginDate'+index)"
-                  @blur="seen=null" format="yyyy/MM/dd" value-format="yyyy/MM/dd"></el-date-picker>
-                <span style="margin-left: 10px" v-else>{{ event.beginDate }}</span>
-              </td>
-              <td @click="cellClick(index, 'endDate')" @keyup.enter="seen=null">
-                <el-date-picker size="mini" v-model="event.endDate" type="date" placeholder="选择结束时间" v-if="seen==('endDate'+index)"
-                  @blur="seen=null" format="yyyy/MM/dd" value-format="yyyy/MM/dd"></el-date-picker>
-                <span style="margin-left: 10px" v-else>{{ event.endDate }}</span>
-              </td>
-              <td>
-                <el-select size="mini" v-model="event.type" placeholder="请选择日期类型">
-                  <el-option :label="'节假日'" :value="2"></el-option>
-                  <el-option :label="'非工作日'" :value="1"></el-option>
-                </el-select>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- 底部按钮 -->
-    <div id="buttons">
-      <button class="ok" @click="sentMsgToParent('save')">确定</button>
-      <button class="can" @click="sentMsgToParent('cancel')">取消</button>
-    </div>
+    </section>
+    <section>
+      <el-row>
+        <el-col :span="18">
+          <vue-event-calendar :events="holidyDays" @month-changed="handleMonthChanged"></vue-event-calendar>
+        </el-col>
+        <el-col :span="5" :offset="1">
+          <div class="legend">图例</div>
+          <div class="legend"><span id="workday"></span><span class="legend_title">工作日</span></div>
+          <div class="legend"><span id="holiday"></span><span class="legend_title">节假日</span></div>
+          <div class="legend"><span id="unWorkDay"></span><span class="legend_title">非工作日</span></div>
+        </el-col>
+      </el-row>
+    </section>
+    <section class="btn_group">
+      <el-button-group>
+        <el-button size="mini" title="新增" type="primary" icon="el-icon-plus"    @click="addNewHoliday"></el-button>
+        <el-button size="mini" title="删除" type="primary" icon="el-icon-delete"  @click="deleteHoliday"></el-button>
+        <el-button size="mini" title="保存" type="primary" icon="el-icon-tickets" @click="saveHolidays"></el-button>
+      </el-button-group>
+    </section>
+    <section class="data_table">
+      <el-table :data="holidyDays" stripe border height="300" @selection-change="handleSelectionChange">
+        <el-table-column type="index"     align="center"  width="45"></el-table-column>
+        <el-table-column type="selection" align="center"  width="45"></el-table-column>
+        <el-table-column label="日期名称"  align="center"  prop="title">
+          <template slot-scope="scope">
+            <div @click="changeCellEditable(scope.$index + 'title', scope.row)">
+              <el-input v-model="scope.row.title" size="mini" v-show="current === scope.$index + 'title'" @blur="changeCellUnEditable"></el-input>
+              <span v-show="current !== scope.$index + 'title'">
+                <span v-if="scope.row.title != ''">{{scope.row.title}}</span>
+                <span v-else>-</span>
+              </span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="开始日期"  align="center"  prop="beginDate">
+          <template slot-scope="scope">
+            <div @click="changeCellEditable(scope.$index + 'beginDate', scope.row)">
+              <el-date-picker v-model="scope.row.beginDate" value-format="yyyy/MM/dd" class="dateCell" size="mini" type="date" v-show="current === scope.$index + 'beginDate'" @blur="changeCellUnEditable"></el-date-picker>
+              <span v-show="current !== scope.$index + 'beginDate'">
+                <span v-if="scope.row.beginDate != null">{{scope.row.beginDate}}</span>
+                <span v-else>-</span>
+              </span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="结束日期"  align="center"  prop="endDate">
+          <template slot-scope="scope">
+            <div @click="changeCellEditable(scope.$index + 'endDate', scope.row)">
+              <el-date-picker v-model="scope.row.endDate" value-format="yyyy/MM/dd" class="dateCell" size="mini" type="date" v-show="current === scope.$index + 'endDate'" @blur="changeCellUnEditable"></el-date-picker>
+              <span v-show="current !== scope.$index + 'endDate'">
+                <span v-if="scope.row.endDate != null">{{scope.row.endDate}}</span>
+                <span v-else>-</span>
+              </span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="日期类型"  align="center"  prop="type">
+          <template slot-scope="scope">
+            <div @click="changeCellEditable(scope.$index + 'type', scope.row)">
+              <el-select size="mini" v-model="scope.row.type" v-show="current === scope.$index + 'type'" @blur="changeCellUnEditable">
+                <el-option v-for="item in dateTypes" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
+              </el-select>
+              <span v-show="current !== scope.$index + 'type'">{{ scope.row.type }}</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </section>
   </div>
 </template>
 
 <script>
-  import Vue from 'Vue';
-  import holiday from './2018Holiday.js';
-  import {
-    isBeginEndDate,
-    dateTimeFormatter
-  } from "../../../commons/vue-event-calendar/tools.js";
+  import { isBeginEndDate, dateTimeFormatter } from "../../../commons/vue-event-calendar/tools.js";
 
   export default {
     data() {
       return {
-        seen: null,
-        message: "节假日管理",
-        tableData: [],
-        showEvents: holiday,
-        demoEvents: holiday,
-        initEventsData: holiday,
-        feedbackDay: {},
-        clickDate: null,
-        clickDateEvent: {},
+        value1 : "",
+        current: null,        // 当前行
+        currentYear: "",      // 当前年份
+        holidyDays: [],       // 当年节假日列表
+        multipleSelection: [] // 表格多选数据项
       }
     },
     methods: {
-      cellClick(index, key) {
-        this.seen = key + index;
-      },
-      getTypeText(type) {
-        let map = {
-          '1': '非工作日',
-          '2': '节假日'
-        }
-        return map[type];
-      },
-      handleItemClick(event) {
-        this.feedbackDay = event;
-      },
-      handleDayChanged(data) {
-        this.clickDate = data.date;
-        this.clickDayEvent = data.event;
-      },
-      handleMonthChanged(data) {
-
-      },
-      initTableData: function () {
-        this.$get('/getHolidayDates').then(res => {
+      /** 初始化数据 */
+      initDatas: function() {
+        let data = { "currentYear" : this.currentYear };
+        this.$post(this.urlconfig.scmGetCurrentYearDatas, data).then((res) => {
           if (res.status === 0) {
-            this.tableData = res.data;
+            this.holidyDays = res.data.holidyDays;
+            this.currentYear = res.data.currentYear;
           }
-        }).catch(error => {}).then(() => {
-          //console.log(error);
+        }).catch((error) => {
+          console.log(error);
+        }).then(() => {
+          // todo something...
         });
       },
-      // initShowEventsData: function () {        
-      // if (!this.clickDate || !this.clickDayEvent) {
-      //   return this.demoEvents;
-      // }
-      // return isBeginEndDate(this.clickDate, this.clickDayEvent.beginDate, this.clickDayEvent.endDate) ? [this.clickDayEvent] :
-      //   this.demoEvents;
-      // },
-      addRow: function () {
+      /** 月份变化处理 */
+      handleMonthChanged: function(data) {
+        let year = data.substring(0, 4);
+        if (year != this.currentYear) {
+          this.currentYear = year;
+          this.initDatas();
+        }
+      },
+      /** 表格选择处理 */
+      handleSelectionChange(val) {
+        this.multipleSelection = val;
+      },
+
+      changeCellEditable: function(index, row) {
+        this.current = index;
+      },
+      changeCellUnEditable: function() {
+        this.current = null;
+      },
+
+      /** 增加新节假日 */
+      addNewHoliday: function() {
         var newRow = {
           title: '名称',
           beginDate: dateTimeFormatter(new Date(), 'yyyy/MM/dd'),
           endDate: dateTimeFormatter(new Date(), 'yyyy/MM/dd'),
-          type: 2
+          type: '03'
         }
-        this.demoEvents.unshift(newRow);
+        this.holidyDays.unshift(newRow);
       },
-      deleteRow: function (index, row) {
-        this.tableData.splice(index, 1);
-      },
-      save: function () {
-        this.$message.success("成功保存:" + this.tableData.length + "条")
-      },
-      // 向父组件中传值
-      sentMsgToParent: function (type) {
-        if (type === "save") {
-          this.$emit("ope-holidyDialog", type, this.showEvents)
-        } else {
-          this.$emit("ope-holidyDialog", type, this.initEventsData)
+      /** 删除节假日期 */
+      deleteHoliday: function() {
+        if (this.multipleSelection) {
+          this.multipleSelection.forEach(row => {
+            let point = this.holidyDays.indexOf(row);
+            this.holidyDays.splice(point, 1);
+          });
         }
+      },
+      /** 保存节假日期 */
+      saveHolidays: function() {
+        alert(this.holidyDays.length);
       }
-    },
-    mounted() {
-      // this.initTableData();
     },
     props: ['dateTypes']
   }
-
 </script>
 
-<style>
-  #holidyDialog {
-    /* width: 600px;
-      height: 720px; */
-  }
-
-  .el-dialog__body {
-    padding: 0px 20px;
-  }
-
+<style scoped>
   #tip {
     line-height: 14px;
     margin-bottom: 18px;
   }
 
-  #tip>span {
-    width: 196px;
-    height: 14px;
-    font-size: 14px;
-    font-family: MicrosoftYaHei;
-    font-weight: 400;
-    color: #666666;
-    line-height: 25px;
-  }
-
-  .action {
-    line-height: 14px;
-    margin: 0 0 20px;
-  }
-
-  .el-dialog__header {
-    padding: 0;
-    height: 54px;
-    line-height: 54px;
-  }
-
-  .el-dialog__header>.el-dialog__title {
-    padding: 20px;
-    width: 70px;
-    height: 14px;
-    font-size: 14px;
-    font-family: MicrosoftYaHei;
-    font-weight: 400;
-    color: rgba(89, 196, 238, 1);
-    line-height: 25px;
-  }
-
   .legend {
-    margin-left: 24px;
-    display: inline-block;
-  }
-
-  .legend>.title {
-    color: #59C4EE;
-    margin-bottom: 16px;
-  }
-
-  .legend>div {
-    height: 16px;
-  }
-
-  .legend>div>span {
-    width: 40px;
-    height: 14px;
-    font-size: 14px;
-    font-family: MicrosoftYaHei;
-    font-weight: 400;
-    color: #666666;
+    height: 25px;
     line-height: 25px;
+    vertical-align: middle;
   }
 
-  .legend #s1 {
+  .legend_title {
+     height: 15px;
+     line-height: 15px;
+     margin-left: 5px;
+     display: inline-block;
+     vertical-align: middle;
+  }
+
+  .legend #workday {
     height: 15px;
     width: 15px;
-    background: #FFF1EF;
-    border: 1px solid #AAA;
     display: inline-block;
-  }
-
-  .legend #s2 {
-    height: 15px;
-    width: 15px;
-    background: #EEF9FD;
-    border: 1px solid #AAA;
-    display: inline-block;
-  }
-
-  .legend #s3 {
-    height: 15px;
-    width: 15px;
+    vertical-align: middle;
     background: #FFF;
     border: 1px solid #AAA;
+  }
+
+  .legend #holiday {
+    height: 15px;
+    width: 15px;
     display: inline-block;
+    vertical-align: middle;
+    background: #EEF9FD;
+    border: 1px solid #AAA;
   }
 
-  .legend #d1 {
-    margin-bottom: 13px;
+  .legend #unWorkDay {
+    height: 15px;
+    width: 15px;
+    display: inline-block;
+    vertical-align: middle;
+    background: #FFF1EF;
+    border: 1px solid #AAA;
   }
 
-  .legend #d2 {
-    margin-bottom: 12px;
+  .btn_group {
+    line-height: 30px;
   }
 
-  .events-table {
-    width: 569px;
-  }
-
-  .events-table table {
-    width: 569px;
-    /* height:246px; */
-    border: 1px solid #E0E3EC;
-  }
-
-  .events-table>.grid-head>table>thead>tr>th {
-    width: 42px;
-    height: 13px;
-    font-size: 12px;
-    font-family: MicrosoftYaHei;
-    font-weight: 400;
-    color: #333333;
-    line-height: 25px;
-    text-align: center;
-  }
-
-  .events-table>.grid-body {
-    overflow-x: hidden;
-    width: 569px;
-    height: 240px;
-  }
-
-  .events-table>.grid-body>table>tbody>tr {
-    width: 40px;
-    line-height: 42px;
-  }
-
-  .events-table>.grid-body>table>tbody>tr>td {
-    width: 70px;
-    height: 12px;
-    font-size: 14px;
-    font-family: MicrosoftYaHei;
-    font-weight: 400;
-    color: #666666;
-    line-height: 25px;
-    text-align: center;
-  }
-
-  .events-table>.grid-body>table>tbody>tr>td>.el-date-editor.el-input {
-    width: 132px;
-  }
-
-  .events-table>.grid-body>table>tbody>tr>td>.el-select {
-    width: 104px;
-  }
-
-  #buttons {
+  .data_table {
     margin-top: 20px;
-    padding: 0;
+  }
+
+  .dateCell {
+    width: 92px;
+  }
+</style>
+
+<style>
+  #holidyDialog .el-row {
+    line-height: 30px;
+  }
+
+  #holidyDialog .el-table th {
+    height: 20px;
     line-height: 20px;
-    text-align: right;
-    width: 570px;
   }
-
-  #buttons>button {
-    width: 80px;
-    height: 30px;
-    border-radius: 2px;
-    font-size: 14px;
-    font-family: PingFang-SC-Regular;
-    font-weight: 400;
-    line-height: 15px;
-  }
-
-  #buttons>.ok {
-    background: #59C4EE;
-    color: #FFFFFF;
-  }
-
-  #buttons>.can {
-    background: #FFFFFF;
-    color: #59C4EE;
-    border: 1px solid #59C4EE;
-  }
-
 </style>

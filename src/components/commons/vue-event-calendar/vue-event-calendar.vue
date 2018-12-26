@@ -1,21 +1,14 @@
 <template>
   <div class="__vue_calendar-wrapper">
-    <cal-panel
-      :events="events"
-      :feedbackDay="feedbackDay"
-      :calendar="calendarOptions"
-      @cur-day-changed="handleChangeCurDay"
-      @month-changed="handleMonthChanged">
-    </cal-panel>
+    <cal-panel :events="events" :feedbackDay="feedbackDay" :calendar="calendarOptions" @cur-day-changed="handleChangeCurDay" @month-changed="handleMonthChanged"></cal-panel>
   </div>
 </template>
+
 <script>
 import { isBeginEndDate } from "./tools.js";
-
-//日历选择
 import calPanel from "./components/cal-panel.vue";
-
 const inBrowser = typeof window !== "undefined";
+
 export default {
   name: "vue-event-calendar",
   components: {
@@ -26,17 +19,13 @@ export default {
     feedbackDay: Object,
     events: {
       type: Array,
-      required: true,
       default: [],
+      required: true,
       validator(events) {
         let validate = true;
         events.forEach((event, index) => {
           if (!event.beginDate || !event.endDate) {
-            console.error(
-              "Vue-Event-Calendar-Error:" +
-                "Prop events Wrong at index " +
-                index
-            );
+            console.error("Vue-Event-Calendar-Error:" + "Prop events Wrong at index " +  index);
             validate = false;
           }
         });
@@ -52,7 +41,7 @@ export default {
       } else {
         return {
           options: {
-            locale: "zh", //默认中文显示
+            locale: "zh",
             color: " #f29543"
           },
           params: {
@@ -84,25 +73,24 @@ export default {
     }
   },
   methods: {
-    handleChangeCurDay(date) {
+    /** 日历事件-当天变化处理 */
+    handleChangeCurDay: function(date) {
       let events = this.events.filter(function(event) {
         return isBeginEndDate(date, event.beginDate, event.endDate);
       });
 
-      this.$emit("day-changed", {
-        date: date,
-        event: events[0]
-      });
+      this.$emit("day-changed", { date: date, event: events[0] });
     },
-    handleMonthChanged(yearMonth) {
+    /** 日历事件-月变化处理 */
+    handleMonthChanged: function(yearMonth) {
       this.$emit("month-changed", yearMonth);
     }
   }
 };
 </script>
-<style scoped>
-.__vue_calendar-wrapper {
-  display: inline-block;
-}
 
+<style scoped>
+  .__vue_calendar-wrapper {
+    display: inline-block;
+  }
 </style>

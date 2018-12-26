@@ -1,7 +1,7 @@
 <template>
   <div id="pointname">
     <section v-if="pnAside" class="pn-left">
-      <el-tree :data="treeData" node-key="id" @node-click="handleNodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
+      <el-tree ref="pointTree" :data="treeData" node-key="id" @node-click="handleNodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
         <span class="custom-tree-node" slot-scope="{ node, data }">
           <span v-if="data.isWarning == false"><i :class="node.icon"></i>{{ node.label }}</span>
           <span v-if="data.isWarning == true"><i><img :src="images.warning"></i>{{ node.label }}</span>
@@ -107,6 +107,7 @@
         showDialog: false,        // 是否显示点名窗口
         pnMainAside: false,       // 是否显示视频窗口
         activeName: 'actPnTab',   // 默认显示页签名称
+        checkedNode: null,        // 当前选中树形节点
         pnMainAsideLeft: 250,
         images: {
           left: left,
@@ -134,6 +135,11 @@
         timmer: null
       }
     },
+    mounted() {
+      this.getPrisonareatree();
+      this.getTabledatas();
+      this.initSetInterval();
+    },
     methods: {
       /** 切换TABS页签操作 */
       changeTabs: function(tab, event) {
@@ -151,9 +157,19 @@
       },
       /** 获取人员点名导航树 */
       getPrisonareatree: function () {
-        this.$get(this.urlconfig.pnGetPrisonareatree).then((res) => {
+        this.$get(this.urlconfig.pnGetPrisonRegionTree).then((res) => {
           if (res.status === 0) {
             this.treeData = res.data;
+
+              let _this = this;
+              setTimeout(function() {
+                if (_this.checkedNode == null) {
+                  _this.handleNodeClick(res.data[0]);
+                  _this.$refs.pointTree.setCurrentKey(res.data[0].id);
+                } else {
+                  _this.$refs.pointTree.setCurrentKey(_this.checkedNode.id);
+                }
+              }, 100);
           }
         }).catch((error) => {
           console.log(error);
@@ -180,6 +196,7 @@
         this.parameter.nodeType = data.nodeType;
         this.parameter.nodeId = data.id;
         this.activeName = 'actPnTab';
+        this.checkedNode = data;
         this.getTabledatas();
 
         if (this.timmer == null) {
@@ -207,6 +224,7 @@
       initSetInterval: function () {
         this.timmer = setInterval(() => {
           this.getTabledatas();
+          this.getPrisonareatree();
         }, 5000);
       },
       /** 清除定时刷新任务 */
@@ -261,11 +279,6 @@
         done();
         this.showDialog = false;
       }
-    },
-    mounted() {
-      this.getPrisonareatree();
-      this.getTabledatas();
-      this.initSetInterval();
     },
     beforeDestroy() {
       this.clearSetInterval();

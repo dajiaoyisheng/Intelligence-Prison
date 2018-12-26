@@ -1,7 +1,7 @@
 <template>
   <div id="tvmonitor">
     <section class="tm-left">
-      <el-tree :data="treeData" node-key="id" @node-click="handleNodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
+      <el-tree ref="prisonTree" :data="treeData" node-key="id" @node-click="handleNodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
         <span class="custom-tree-node" slot-scope="{ node, data }">
           <span v-if="data.isWarning == false"><i :class="node.icon"></i>{{ node.label }}</span>
           <span v-if="data.isWarning == true"><i><img :src="images.warning"></i>{{ node.label }}</span>
@@ -11,13 +11,13 @@
     <section class="tm-right">
       <el-container>
         <el-main>
-          <el-card class="box-card" style="height: 865px;">
+          <el-card  class="box-card" style="height: 865px;">
             <div slot="header" class="clearfix"><span>平面图/监控视频</span></div>
-            <div>
-              <section v-if="(checkedNode != null) && (checkedNode.nodeType != '01') && (checkedNode.nodeType != '04')">
-                <span>平面图</span>
+            <div ref="canvasContainer" style="width:100%; height:100%;">
+              <section v-show="isShowMapping">
+                <div ref="canvas" id="canvasDiv"></div>
               </section>
-              <section v-if="(checkedNode != null) && (checkedNode.nodeType == '04')">
+              <section v-show="!isShowMapping">
                 <el-row>
                   <el-col :span="19">
                     <div v-if="(cameras != null) && (cameras.length > 0)">
@@ -32,12 +32,20 @@
                           <el-button size="mini" type="primary" class="search-btn" @click="queryVideos">查询</el-button>
                         </el-col>
                       </el-row>
-                      <el-row style="margin-right: 20px;">
+                      <el-row style="margin-right: 20px;" v-if="!isShowHisVideo">
                         <el-col :span="12" style="text-align: center">
-                          <iframe v-for="(camera, index) in cameras" :key="index" v-if="(index % 2) == 0" style="height: 370px; width: 550px;" :src="'../ws_rtsp/rtspPlay.jsp?id=' + camera + '&startTime=' + params.startTime + '&endTime=' + params.endTime"></iframe>
+                          <iframe v-for="(camera, index) in cameras" :key="index" v-if="(index % 2) == 0" style="height: 370px; width: 550px;" :src="'../ws_rtsp/rtspPlay.jsp?id=' + camera"></iframe>
                         </el-col>
                         <el-col :span="12" style="text-align: center">
-                          <iframe v-for="(camera, index) in cameras" :key="index" v-if="(index % 2) != 0" style="height: 370px; width: 550px;" :src="'../ws_rtsp/rtspPlay.jsp?id=' + camera + '&startTime=' + params.startTime + '&endTime=' + params.endTime"></iframe>
+                          <iframe v-for="(camera, index) in cameras" :key="index" v-if="(index % 2) != 0" style="height: 370px; width: 550px;" :src="'../ws_rtsp/rtspPlay.jsp?id=' + camera"></iframe>
+                        </el-col>
+                      </el-row>
+                      <el-row style="margin-right: 20px;" v-if="isShowHisVideo">
+                        <el-col :span="12" style="text-align: center">
+                          <iframe v-for="(camera, index) in cameras" :key="index" v-if="(index % 2) == 0" style="height: 370px; width: 550px;" :src="'../recordplay/play.jsp?id=' + camera + '&startTime=' + params.startTime + '&endTime=' + params.endTime"></iframe>
+                        </el-col>
+                        <el-col :span="12" style="text-align: center">
+                          <iframe v-for="(camera, index) in cameras" :key="index" v-if="(index % 2) != 0" style="height: 370px; width: 550px;" :src="'../recordplay/play.jsp?id=' + camera + '&startTime=' + params.startTime + '&endTime=' + params.endTime"></iframe>
                         </el-col>
                       </el-row>
                     </div>
@@ -112,11 +120,15 @@
 </template>
 
 <script>
+import Draw from "@/draw/action";
+import warning from '@/assets/warning.png';
 import position from "@/components/pages/personnelposition/position.vue";
 
 export default {
   data() {
     return {
+      isShowMapping: false,     // 是否显示平面图
+      isShowHisVideo: false,    // 是否显示历史视频
       isShowPosition: false,    // 是否弹出人员定位
       treeData: [],             // 左侧树形数据模型
       tableData: [],            // 监控人员数据模型
@@ -125,34 +137,61 @@ export default {
       camerasTreeData: [],      // 摄像头树形
       cameras: [],              // 摄像头列表
       nearCameras: [],          // 相邻摄像头
+      timmer: null,             // 定时任务
       params: {                 // 查询条件
         startTime: "",
         endTime: ""
-      }
+      },
+      images: {                 // 预警图片
+          warning: warning
+      },
+      drawMapObj: null
     }
   },
   mounted() {
-    this.getPrisonareatree();
+    this.getPrisonareatree(null);
+    this.initSetInterval();
+  },
+  beforeDestroy() {
+    this.clearSetInterval();
   },
   methods: {
     /** 获取左侧树形数据模型 */
-    getPrisonareatree: function() {
-      this.$get(this.urlconfig.tmGetPrisonareatree).then((res) => {
+    getPrisonareatree: function(currData) {
+      this.$get(this.urlconfig.tmGetPrisonRegionWarningTree).then((res) => {
         if (res.status === 0) {
           this.treeData = res.data;
+
+          let _this = this;
+          setTimeout(function() {
+            if (currData == null) {
+              _this.initDrawObj();
+              _this.handleNodeClick(res.data[0].children[0]);
+              _this.$refs.prisonTree.setCurrentKey(res.data[0].children[0].id);
+            } else {
+              _this.$refs.prisonTree.setCurrentKey(_this.checkedNode.id);
+              _this.activeWarning();
+            }
+          }, 300);
         }
       }).catch((error) => {
         console.log(error);
       }).then(() => {
-        // todo somthing...
+
       });
     },
     /** 点击左侧树形节点操作 */
     handleNodeClick: function(data) {
       this.checkedNode = data;
+      if ((data.nodeType == "01") || (data.nodeType == "04")) {
+        this.isShowMapping = false;
+      } else {
+        this.isShowMapping = true;
+      }
+
+      this.getCameras();
       this.getCriminals();
       this.getTreeNodeInfo();
-      this.getCameras();
       this.getCamerasTreeData();
     },
     /** 获取监控人员列表 */
@@ -174,11 +213,12 @@ export default {
       this.$post(this.urlconfig.tmGetTreeNodeInfo, data).then((res) => {
         if (res.status === 0) {
           this.checkedNodeInfo = res.data;
+          this.drawMap(this.checkedNodeInfo);
         }
       }).catch((error) => {
         console.log(error);
       }).then(() => {
-        // todo somthing...
+
       });
     },
     /** 获取摄像头列表 */
@@ -249,6 +289,23 @@ export default {
     },
     /** 根据条件查询视频 */
     queryVideos: function() {
+      let startTime = this.params.startTime;
+      let endTime = this.params.endTime;
+      if (startTime == null) { startTime = '' }
+      if (endTime == null) { endTime = '' }
+
+      if ((startTime == '') && (endTime == '')) {
+        this.isShowHisVideo = false;
+      }  else if ((startTime != '') && (endTime != '')) {
+        this.isShowHisVideo = true;
+      } else if ((startTime == '') && (endTime != '')) {
+        this.$message({ type: "warning", message: "开始时间不能为空!" });
+        return;
+      } else if ((startTime != '') && (endTime == '')) {
+        this.$message({ type: "warning", message: "结束时间不能为空!" });
+        return;
+      }
+
       let tmpCameras = this.cameras;
       this.cameras = [];
       this.cameras = tmpCameras;
@@ -260,6 +317,98 @@ export default {
     /** 设置结束时间格式 */
     setEndTime: function(val) {
       this.params.endTime = val;
+    },
+    /** 初始化定时任务 */
+    initSetInterval: function () {
+      this.timmer = setInterval(() => {
+        this.getPrisonareatree(this.checkedNode);
+      }, 5000);
+    },
+    /** 清除定时刷新任务 */
+    clearSetInterval: function() {
+      if (this.timmer != null) {
+        clearInterval(this.timmer);
+        this.timmer = null;
+      }
+    },
+    /** 初始化平面图区域 */
+    initDrawObj: function() {
+      let canvasContainerRect = this.$refs.canvasContainer.getBoundingClientRect();
+      let width =canvasContainerRect.width;
+      let height = canvasContainerRect.height;
+
+      this.$refs.canvas.style.width = width  + "px";
+      this.$refs.canvas.style.height = height + "px";
+      this.drawMapObj = new Draw(this, "canvasDiv", width, height, true,
+        function(e, obj, prev) {
+
+        }, function (e, obj, prev){
+
+        }, function(e, obj, prev){
+
+        });
+
+    },
+    /** 执行画图操作 */
+    drawMap: function(data) {
+
+      //监狱和监舍事，清空
+      let checkedNode = this.checkedNode;
+      if ((data == null) || (checkedNode.nodeType == "01") || (checkedNode.nodeType == "04")) {
+        this.drawMapObj.setBackgroundPicture("");
+        this.drawMapObj.updateNodeDataArr([]);
+        this.relationships = {};
+        return;
+      }
+      let relations = data.nodeMapping.length > 10 ?JSON.parse(data.nodeMapping):{};
+      if(relations.currScale != undefined){
+        this.drawMapObj.diagram.scale = relations.currScale;
+      }
+      this.drawMapObj.resetPos();
+      let dataArr = data.nodeConfig.length > 10 ? JSON.parse(data.nodeConfig) : [];
+      this.drawMapObj.updateNodeDataArr(dataArr);
+      for (let i = dataArr.length - 1; i >= 0; i--) {
+        if(dataArr[i].category == "textTipsTemplate") continue;
+        if ((dataArr[i].pri_code == undefined) || (dataArr[i].pri_code == "") || (dataArr[i].pri_code == null)) {
+          this.drawMapObj.diagram.model.removeNodeData(dataArr[i]);
+        }
+      }
+
+      this.drawMapObj.setBackgroundPicture(data.nodeMap);
+      this.drawMapObj.doSelectOnly();
+
+      this.activeWarning();
+    },
+    /** 标明预警区域 */
+    activeWarning: function() {
+      let priCodes = [];
+      let children = this.checkedNode.children;
+
+      if ((children != null) && (children.length > 0)) {
+        for (let i = 0; i < children.length; i++) {
+          if (children[i].isWarning) {
+            priCodes.push(children[i].id)
+          }
+        }
+      }
+      this.drawMapObj.activeWarning(priCodes);
+    },
+    /** 双击下钻 */
+    dbClickBack: function(e, obj, pre) {
+      let priCode = obj.data.pri_code;
+      this.getSelectedNodeData(this.treeData, priCode);
+    },
+    /** 设置关联节点 */
+    getSelectedNodeData: function(datas, priCode) {
+      for (let i = 0; i < datas.length; i++) {
+        let element = datas[i];
+        if (element.id == priCode) {
+          this.handleNodeClick(element);
+        }
+        if (element.children) {
+          this.getSelectedNodeData(element.children, priCode);
+        }
+      }
     }
   },
   components: {
