@@ -97,6 +97,8 @@ let urlconfig = {
     scmGetSpecialDates: `/priSchedule.action?method=getSpecialDates`,
     // 获取当年节假日列表
     scmGetCurrentYearDatas: `/priSchedule.action?method=getCurrentYearDatas`,
+    // 获取当年节假日列表
+    scmSaveHolidays: `/priSchedule.action?method=saveSpecialDays`,
     // 日历管理end
     // 人员管理begin
     // 提交新增用户

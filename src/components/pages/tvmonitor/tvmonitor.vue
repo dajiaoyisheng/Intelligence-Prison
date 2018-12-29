@@ -69,9 +69,12 @@
                       </div>
                     </el-card>
                     <el-card class="box-card" shadow="never" style="height: 540px;">
-                      <div slot="header" class="clearfix"><span>所有摄像头</span></div>
+                      <div slot="header" class="clearfix">
+                        <span>所有摄像头</span>
+                        <el-input size="mini" style="width:62%;" placeholder="请输入内容" prefix-icon="el-icon-search" v-model="cameraName" @change="filterChange" clearable></el-input>
+                      </div>
                       <div>
-                        <el-tree :data="camerasTreeData" node-key="id" default-expand-all @node-click="showVideoClick" :expand-on-click-node="false" :highlight-current="true">
+                        <el-tree ref="camerasTree" :filter-node-method="filterNode" :data="camerasTreeData" node-key="id" default-expand-all @node-click="showVideoClick" :expand-on-click-node="false" :highlight-current="true">
                           <span class="custom-tree-node" slot-scope="{ node, data }">
                             <span v-if="data.isWarning == false"><i :class="node.icon"></i>{{ node.label }}</span>
                             <span v-if="data.isWarning == true"><i><img :src="images.warning"></i>{{ node.label }}</span>
@@ -137,6 +140,7 @@ export default {
       camerasTreeData: [],      // 摄像头树形
       cameras: [],              // 摄像头列表
       nearCameras: [],          // 相邻摄像头
+      cameraName: "",           // 摄像头名称
       timmer: null,             // 定时任务
       params: {                 // 查询条件
         startTime: "",
@@ -331,6 +335,15 @@ export default {
         this.timmer = null;
       }
     },
+    /** 摄像头搜索事件 */
+    filterChange: function() {
+      this.$refs.camerasTree.filter(this.cameraName);
+    },
+    /** 摄像头树形搜索 */
+    filterNode: function(value, data) {
+      if (!value) return true;
+      return data.label.indexOf(value) !== -1;
+    },
     /** 初始化平面图区域 */
     initDrawObj: function() {
       let canvasContainerRect = this.$refs.canvasContainer.getBoundingClientRect();
@@ -449,11 +462,11 @@ export default {
 </style>
 
 <style>
- #tvmonitor .el-main {
-   padding: 0px;
- }
+  #tvmonitor .el-main {
+    padding: 0px;
+  }
 
- #tvmonitor .el-carousel__container {
-   height: 200px;
- }
+  #tvmonitor .el-carousel__container {
+    height: 200px;
+  }
 </style>

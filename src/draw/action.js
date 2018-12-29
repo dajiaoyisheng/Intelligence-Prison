@@ -17,6 +17,7 @@ export default class Action {
     this.cameraColor ="#2b2b2b";
     this.select = false;
     this.camSVGData = "m26.7,13.016006c-0.16,6.095 -5.55,10.992 -12.2,10.992c-6.61,0 -11.99,-4.864 -12.19,-10.934a5.278,5.278 0 0 1 -2.28,-1.96c-0.11,-1.648 0,-6.3 0,-7.369c4.56,-4.952 24.24,-5.029 28.95,0l0,7.369a5.464,5.464 0 0 1 -2.28,1.9l0,0l0,0.002zm-16.44,6.844l0,0c0.62,1.071 2.28,1.843 4.24,1.843s3.63,-0.772 4.25,-1.843l0,0l0.19,-5.986l0,0a4.511,4.511 0 0 0 -8.87,0l0,0l0.19,5.986zm16.46,-15.116c-4.16,-3.047 -18.96,-3.282 -24.43,-0.081c0,0.551 -0.05,3.024 0.04,3.87c4.3,-2.741 19.96,-2.7 24.39,0l0,-3.787l0,-0.002zm-12.22,10.05a2.552,2.552 0 1 1 -2.26,2.535a2.415,2.415 0 0 1 2.26,-2.535l0,0zm12.22,-10.05";
+    this.personSVGData ="M8 10c0-4.418 3.582-8 8-8s8 3.582 8 8c0 4.418-3.582 8-8 8s-8-3.582-8-8zM24 20h-16c-4.418 0-8 3.582-8 8v2h32v-2c0-4.418-3.582-8-8-8z";
 
     this.moveable = !readOnly;
     this.resizable = !readOnly;
@@ -45,7 +46,7 @@ export default class Action {
           fill:this.fill,
           // opacity:0,
           stroke:this.stroke,
-          strokeWidth: 3
+          strokeWidth: 5
         },
         new gojs.Binding("figure", "figure"),
         new gojs.Binding("fill", "color"),
@@ -86,7 +87,7 @@ export default class Action {
             this.$(gojs.Shape, {
               fill: this.fill,
               // opacity: 0,
-              strokeWidth: 3,
+              strokeWidth: 5,
               stroke: "dodgerblue",
 
             }),
@@ -123,7 +124,7 @@ export default class Action {
           // opacity:0,
           stroke: this.stroke,
           // strokeDashArray: [6, 6, 6],
-          strokeWidth: 3
+          strokeWidth: 5
         },
         new gojs.Binding("fill"),
         new gojs.Binding("stroke", "strokeColor"),
@@ -215,29 +216,43 @@ export default class Action {
     );
 
     //人
-    this.prisonerTemplate =
-      this.$(gojs.Node,{
-          zOrder: 999,
-          movable: false,
-        },
-        new gojs.Binding("location", "loc"),  // specified by data
-        { locationSpot: gojs.Spot.Center },   // at center of node
-        this.$(gojs.Shape, "Circle",
-          { width: 15, height: 15, strokeWidth: 3 ,fill:"yellow",stroke:"blue"}
-        ),  // also specified by data
-        // { // this tooltip shows the name and picture of the kitten
-        //   toolTip:
-        //     this.$(gojs.Adornment, "Auto",
-        //       this.$(gojs.Shape, { fill: "lightyellow" }),
-        //       this.$(gojs.Panel, "Vertical",
-        //         this.$(gojs.Picture, { margin: 3 },
-        //           new gojs.Binding("source", "src", function(s) { return "images/" + s + ".png"; })),
-        //         this.$(gojs.TextBlock, { margin: 3 },
-        //           new gojs.Binding("text", "key"))
-        //       )
-        //     )  // end Adornment
-        // }
-      );
+    this.prisonerTemplate =this.$(gojs.Node, "Auto",
+      {
+        minSize: new gojs.Size(40, 40),
+        resizable: this.resizable,
+        zOrder: 999,
+        movable: this.moveable,
+        locationSpot: gojs.Spot.Center,
+        rotatable: this.rotaeable,
+        //rotateObjectName: "SHAPE"
+      },
+      new gojs.Binding("location", "loc").makeTwoWay(gojs.Point.stringify),
+      this.$(gojs.Shape, "Rectangle", {
+        fill: this.fill,//"#00B5CB",
+        // opacity: 0,
+        strokeWidth: 0,
+
+        minSize: new gojs.Size(40, 80),
+      }),
+      this.$(gojs.Shape, {
+        fill: "red",
+        strokeWidth: 0,
+        width: 15, height: 25,
+        geometry: gojs.Geometry.parse(this.personSVGData, true)
+      })/*,
+      // Each node has a tooltip that reveals the name of its icon
+      {
+        toolTip: this.$(gojs.Adornment, "Auto",
+          this.$(gojs.Shape, {
+            fill: "LightYellow",
+            stroke: "#888",
+          }),
+          this.$(gojs.TextBlock, {
+              stroke: "#888",
+              font: "bold 14px sans-serif"
+            },
+            new gojs.Binding("text", "cameraName")))
+      }*/);
 
     this.diagram = this.$(gojs.Diagram, canvasId, {
       //以下三行防止出现动态滚动条
@@ -647,7 +662,7 @@ export default class Action {
       model.addNodeData(newdata);
       model.commitTransaction("update locations");
 
-      this.randomLoop(partVal,newdata);
+      // this.randomLoop(partVal,newdata);
     }
   };
   getNodeDataByPricode(pricode) {

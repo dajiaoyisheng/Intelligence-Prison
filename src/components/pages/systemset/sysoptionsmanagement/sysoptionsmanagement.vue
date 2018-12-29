@@ -10,18 +10,24 @@
         </el-row>
       </el-header>
       <el-main>
-        <el-row>
+        <el-row style="line-height: 30px;">
+          <el-col :span="15">
+            <span>监狱名称：</span>
+            <el-input style="width: 30%;" size="mini" placeholder="请输入内容" v-model="prisonName" clearable></el-input>
+          </el-col>
+        </el-row>
+        <el-row style="line-height: 30px;">
           <el-col :span="15">
             <span>无法定位允许最长时间：</span>
             <el-input-number size="mini" v-model="optionMaxTime" controls-position="right" :min="1" :max="3600"></el-input-number>分
           </el-col>
         </el-row>
-        <div>
+        <el-row style="line-height: 30px;">
           <el-col :span="15">
             <span>允许在卫生间中停留的最长时间：</span>
             <el-input-number size="mini" v-model="stayMaxTime" controls-position="right" :min="1" :max="3600"></el-input-number>分
           </el-col>
-        </div>
+        </el-row>
       </el-main>
     </el-container>
   </div>
@@ -32,6 +38,7 @@
     data() {
       return {
         message: '系统选项管理',
+        prisonName: "智能监狱",
         optionMaxTime: 5,
         stayMaxTime: 6
       }
@@ -43,6 +50,7 @@
           if (res.status === 0) {
             this.optionMaxTime = res.data.optionMaxTime;
             this.stayMaxTime = res.data.stayMaxTime;
+            this.prisonName = res.data.prisonName;
           }
         }).catch((error) => {
           console.log(error);
@@ -83,10 +91,15 @@
         option2.name = "stayMaxTime";
         option2.value = this.stayMaxTime;
 
+        let option3 = {}
+        option3.name = "prisonName";
+        option3.value = this.prisonName;
+
         // 系统选项参数集合
         let options = [];
         options.push(option1);
         options.push(option2);
+        options.push(option3);
 
         let data = {};
         data.options = JSON.stringify(options);

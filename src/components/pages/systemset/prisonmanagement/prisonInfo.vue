@@ -13,11 +13,6 @@
                     <el-input style="width: 220px;" v-model="form.nodeName" clearable></el-input>
                 </el-form-item>
             </el-row>
-            <el-row v-if="form.nodeType == '02'">
-                <el-form-item label="监狱名称" prop="priName">
-                    <el-input style="width: 220px;" v-model="form.priName" clearable></el-input>
-                </el-form-item>
-            </el-row>
             <el-row v-if="form.nodeType == '04'">
                 <el-form-item label="区域类型" prop="areaType">
                     <el-select v-model="form.areaType">
@@ -59,7 +54,6 @@ export default {
             nodeState: true,          // 节点使用状态
             areaType: "",           // 区域类型信息
             nodeType: "",           // 节点类型信息
-            priName: "",            // 所属监狱名称
             areas: []               // 相邻区域集合
           },
           rules: {                  // 校验规则列表

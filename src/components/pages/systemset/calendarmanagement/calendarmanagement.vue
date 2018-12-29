@@ -6,7 +6,7 @@
           <el-col :span="21" class="cal-header-title"><span>日历管理</span></el-col>
           <el-col :span="3" class="cal-header-toolbar">
             <el-button type="primary" size="mini" class="search-btn" @click="showHolidayDialog">节假日管理</el-button>
-            <el-dialog title="节假日管理" :visible.sync="isShowHolidyDialog" width="600px">
+            <el-dialog title="节假日管理" :visible.sync="isShowHolidyDialog" width="800px" :before-close="holidayDialogClose">
               <v-holidyDialog ref="holidyDialog" :dateTypes="dateTypes"></v-holidyDialog>
             </el-dialog>
           </el-col>
@@ -268,7 +268,15 @@
         this.$nextTick(() => {
           this.$refs.holidyDialog.initDatas();
         });
-      }
+      },
+      /** 关闭节假日窗口前操作 */
+      holidayDialogClose: function (done) {
+        this.$confirm('确认关闭？').then(() => {
+          done();
+        }).catch((error) => {
+          console.log(error);
+        });
+      },
     },
     mounted() {
       this.getDateTypes();

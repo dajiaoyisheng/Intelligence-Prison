@@ -1,5 +1,23 @@
 <template>
   <div id="pp-wrap">
+    <section style="padding: 10px;">
+      <span>监区:</span>
+      <el-select size="small" v-model="params.priCode" placeholder="请选择" @change="getPaiCodesData">
+        <el-option v-for="item in priCodes" :key="item.priCode" :label="item.priName" :value="item.priCode"></el-option>
+      </el-select>
+      <span>监舍:</span>
+      <el-select size="small" v-model="params.paiCode" placeholder="请选择">
+        <el-option v-for="item in paiCodes" :key="item.paiCode" :label="item.paiName" :value="item.paiCode"></el-option>
+      </el-select>
+      <span>监管类型:</span>
+      <el-select size="small" v-model="params.supervisionType" placeholder="请选择">
+        <el-option v-for="item in supervisionTypes" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
+      </el-select>
+      <span>服刑人员:</span>
+      <el-input size="small" class="pp-input" v-model="params.prisoner" placeholder="请输入内容"></el-input>
+      <el-button @click="getPPositionData" size="mini" type="primary" class="search-btn">查询</el-button>
+    </section>
+
     <section class="pp-left">
       <el-table ref="pPositionTable" :data="pPositionData" stripe @row-click="getPrisonerBaseInfo" :highlight-current-row="true">
         <el-table-column type="index"   width="50"></el-table-column>
@@ -8,24 +26,8 @@
       </el-table>
     </section>
     <section class="pn-right">
-      <section style="padding: 10px;">
-        <span>监区:</span>
-        <el-select size="small" v-model="params.priCode" placeholder="请选择" @change="getPaiCodesData">
-          <el-option v-for="item in priCodes" :key="item.priCode" :label="item.priName" :value="item.priCode"></el-option>
-        </el-select>
-        <span>监舍:</span>
-        <el-select size="small" v-model="params.paiCode" placeholder="请选择">
-          <el-option v-for="item in paiCodes" :key="item.paiCode" :label="item.paiName" :value="item.paiCode"></el-option>
-        </el-select>
-        <span>监管类型:</span>
-        <el-select size="small" v-model="params.supervisionType" placeholder="请选择">
-          <el-option v-for="item in supervisionTypes" :key="item.sCode" :label="item.sName" :value="item.sCode"></el-option>
-        </el-select>
-        <span>服刑人员:</span>
-        <el-input size="small" class="pp-input" v-model="params.prisoner" placeholder="请输入内容"></el-input>
-        <el-button @click="getPPositionData" size="mini" type="primary" class="search-btn">查询</el-button>
-      </section>
-      <section style="height: calc(100% - 120px);">
+
+      <section style="height: 100%;">
         <v-position ref="vPosition"></v-position>
       </section>
     </section>
@@ -175,23 +177,26 @@ export default {
 
 <style scoped>
   .pp-left {
-    height: calc(100% - 60px);
+    height: calc(100% - 112px);
     width: 250px;
-    top: 60px;
-    left: 0;
-
+    /* top: 60px; */
+    /* left: 0; */
     z-index: 666;
     overflow: auto;
-    position: fixed;
+    position: absolute;
     background: #fff;
     display: inline-block;
     border-right: 1px solid #e0e3ec;
+    /* margin: 0px 10px; */
+    min-height: 800px;
   }
 
   .pn-right {
-    width: calc(100% - 265px);
-    margin: 0px 10px;
-    float: right;
+    height: calc(100% - 112px);
+    width: calc(100% - 250px);
+    position: absolute;
+    left: 250px;
+    min-height: 800px;
   }
 
   .pp-input {

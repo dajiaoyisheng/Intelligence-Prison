@@ -32,7 +32,11 @@ export default {
             function(e, obj, prev) {
                 //单击图形后的操作
                 let priCode = obj.data.pri_code;
-                _this.$refs.rightTree.setCurrentKey(priCode);
+                if(priCode && priCode != ""){
+                  let node = { "id" : priCode, "nodeType" : obj.data.nodeType };
+                  _this.handleObjectNodeClick(node);
+                  _this.$refs.rightTree.setCurrentKey(priCode);
+                }
 
                 _this.currUUID = obj.data.__gohashid;
                 _this.mouseClickedGraph = this;
@@ -42,6 +46,7 @@ export default {
                 _this.drawObj.diagram.currentCursor = "pointer";
                 //如果是监区对象拖拽的情况下设置图形和对象的关系
                 if (_this.startDragNode) {
+                  _this.handleObjectNodeClick(_this.draggingNode.data);
                   let uuid = obj.data.__gohashid;
                   let nodeData = obj.data;
                   console.log(nodeData);

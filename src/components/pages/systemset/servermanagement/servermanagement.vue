@@ -55,7 +55,7 @@
                 <el-row class="item">
                   <el-col :span="6"><span style="line-height: 18px; vertical-align: middle;">视频分析引擎：</span></el-col>
                   <el-col :span="14">
-                    <el-switch v-model="engineItem.switch" active-color="#13ce66" inactive-color="#ff4949" @change="insureChange()"></el-switch>
+                    <el-switch v-model="engineItem.switch" active-color="#13ce66" inactive-color="#dcdfe6" @change="insureChange()"></el-switch>
                   </el-col>
                 </el-row>
                 <el-row class="item">

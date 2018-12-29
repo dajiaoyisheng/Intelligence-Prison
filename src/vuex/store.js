@@ -19,7 +19,7 @@ const store = new Vuex.Store({
             }
             // 生产环境配置
             else if (process.env.NODE_ENV === "production") {
-                state.env = "http://localhost:8888/bi/hawkeye";
+                state.env = "/bi/hawkeye";
             }
             return state.env
         },

@@ -6,15 +6,15 @@
                     <el-col :span="19">
                         <el-row style="font-size: 13px;">
                             <el-col :span="6"><span class="label-base">编号:</span><span v-text="criminal.criCode"></span></el-col>
-                            <el-col :span="6"><span class="label-base">姓名:</span><span v-text="criminal.criName"></span></el-col>
-                            <el-col :span="6"><span class="label-base">性别:</span><span v-text="criminal.criGender"></span></el-col>
-                            <el-col :span="6"><span class="label-base">身份证号:</span><span v-text="criminal.criIdcard"></span></el-col>
+                            <el-col :span="5"><span class="label-base">姓名:</span><span v-text="criminal.criName"></span></el-col>
+                            <el-col :span="5"><span class="label-base">性别:</span><span v-text="criminal.criGender"></span></el-col>
+                            <el-col :span="8"><span class="label-base">身份证号:</span><span v-text="criminal.criIdcard"></span></el-col>
                         </el-row>
                         <el-row style="font-size: 13px;">
                             <el-col :span="6"><span class="label-base">生日:</span><span v-text="criminal.criBirthday"></span></el-col>
-                            <el-col :span="6"><span class="label-base">民族:</span><span v-text="criminal.criNation"></span></el-col>
-                            <el-col :span="6"><span class="label-base">籍贯:</span><span v-text="criminal.criOrigin"></span></el-col>
-                            <el-col :span="6"><span class="label-base">婚姻状况:</span><span v-text="criminal.criMarryStatus"></span></el-col>
+                            <el-col :span="5"><span class="label-base">民族:</span><span v-text="criminal.criNation"></span></el-col>
+                            <el-col :span="5"><span class="label-base">籍贯:</span><span v-text="criminal.criOrigin"></span></el-col>
+                            <el-col :span="8"><span class="label-base">婚姻状况:</span><span v-text="criminal.criMarryStatus"></span></el-col>
                         </el-row>
                         <el-row style="font-size: 13px;">
                             <el-col :span="6"><span class="label-base">状态:</span><span v-text="criminal.criState"></span></el-col>
@@ -23,9 +23,9 @@
                             <el-collapse-item title="教育/经验" name="1">
                                 <el-row>
                                     <el-col :span="6"><span class="label-base">文化程度:</span><span v-text="criminal.criEducation"></span></el-col>
-                                    <el-col :span="6"><span class="label-base">职业:</span><span v-text="criminal.criOccupation"></span></el-col>
-                                    <el-col :span="6"><span class="label-base">所在公司:</span><span v-text="criminal.criCompany"></span></el-col>
-                                    <el-col :span="6"><span class="label-base">职务:</span><span v-text="criminal.criDuties"></span></el-col>
+                                    <el-col :span="5"><span class="label-base">职业:</span><span v-text="criminal.criOccupation"></span></el-col>
+                                    <el-col :span="5"><span class="label-base">所在公司:</span><span v-text="criminal.criCompany"></span></el-col>
+                                    <el-col :span="8"><span class="label-base">职务:</span><span v-text="criminal.criDuties"></span></el-col>
                                 </el-row>
                             </el-collapse-item>
                             <el-collapse-item title="服刑信息" name="2">
@@ -75,7 +75,7 @@
                 </div>
             </el-tab-pane>
             <el-tab-pane label="活动记录" name="actRecord">
-                <el-row>
+                <el-row style="margin-bottom: 0px;">
                     <el-col :span="6">
                         <el-tabs v-model="actRecordTab" @tab-click="handleActClick">
                             <el-tab-pane label="当前活动区域" name="nowActArea"></el-tab-pane>
@@ -90,22 +90,22 @@
                         <el-button size="mini" type="primary" class="search-btn" @click="getHisActArea()">查询</el-button>
                     </el-col>
                 </el-row>
-                <el-row style="width:100%; height:700px;">
-                    <div v-if="actRecordTab == 'nowActArea'" style="width:100%; height:700px;">
-                      <div ref="canvasContainer" style="width:1200px; height:700px;" >
-                          <div ref="canvas" id="canvasDiv" style="width:1200px; height:700px;"></div>
+                <el-row>
+                    <div ref="canvasContainer" style="width:100%;min-height: 600px; height:650px;border:1px solid #dcdfe6;" >
+                      <div v-show="actRecordTab == 'nowActArea'">
+                          <div ref="canvas" id="canvasDiv" ></div>
                       </div>
-                    </div>
-                    <div v-show="actRecordTab == 'hisActArea'">
+                      <div v-show="actRecordTab == 'hisActArea'">
                         <el-table :data="pPHisTrackData" stripe style="width: 100%">
-                            <el-table-column prop="startTime"   label="进时间"></el-table-column>
-                            <el-table-column prop="endTime"     label="出时间"></el-table-column>
-                            <el-table-column prop="areaName"    label="区域"></el-table-column>
-                            <el-table-column prop="stayTimeLen" label="停留时间"></el-table-column>
+                          <el-table-column prop="startTime"   label="进时间"></el-table-column>
+                          <el-table-column prop="endTime"     label="出时间"></el-table-column>
+                          <el-table-column prop="areaName"    label="区域"></el-table-column>
+                          <el-table-column prop="stayTimeLen" label="停留时间"></el-table-column>
                         </el-table>
                         <div class="el-pagination-wrap">
-                            <table-pagination :total="pPHisTrackCount" @change="getHisActArea" ref="historyPagination"></table-pagination>
+                          <table-pagination :total="pPHisTrackCount" @change="getHisActArea" ref="historyPagination"></table-pagination>
                         </div>
+                      </div>
                     </div>
                 </el-row>
             </el-tab-pane>
@@ -136,6 +136,9 @@ export default {
             }
         }
     },
+  mounted(){
+    this.initDrawObj();
+  },
     methods: {
         /** 页签切换操作 */
         handleClick: function(tab, event) {
@@ -144,6 +147,8 @@ export default {
             } else if (this.activeName == "warning") {
                 this.getTodayWarnings();
             } else if (this.activeName == "actRecord") {
+                // this.getHisActArea();
+                // this.actRecordTab = "hisActArea";
                 this.getNowActArea();
                 this.actRecordTab = "nowActArea";
             }
@@ -151,6 +156,7 @@ export default {
         /** 活动区域页签切换 */
         handleActClick: function(tab, event) {
             if (this.actRecordTab == "nowActArea") {
+
                 this.getNowActArea();
 
             } else if (this.actRecordTab == "hisActArea") {
@@ -193,7 +199,7 @@ export default {
           this.$post(this.urlconfig.ppGetCriCurrentAreaInfo, data).then((res) => {
             if (res.status === 0) {
               this.nowActivePriCode = res.data.paiCode;
-              this.initDrawObj();
+
               this.getAreaMapInfo(res.data.psiCode);
             }
           }).catch((error) => {
@@ -209,6 +215,8 @@ export default {
           this.$post(this.urlconfig.tmGetTreeNodeInfo,data).then((res) => {
               if(res.status == 0){
                   this.drawMap(res.data);
+              }else {
+                  this.drawMap(null)
               }
           }).catch((error) => {
 
@@ -251,7 +259,7 @@ export default {
         /** 初始化平面图区域 */
         initDrawObj: function() {
           let canvasContainerRect = this.$refs.canvasContainer.getBoundingClientRect();
-          let width =canvasContainerRect.width == 0 ? 1200: canvasContainerRect.width;
+          let width =canvasContainerRect.width == 0 ? 900: canvasContainerRect.width;
           let height = canvasContainerRect.height == 0 ? 600: canvasContainerRect.height;
 
           this.$refs.canvas.style.width = width  + "px";
@@ -268,24 +276,30 @@ export default {
         },
         /** 执行画图操作 */
         drawMap: function(data) {
-          let relations = data.nodeMapping.length > 10 ?JSON.parse(data.nodeMapping):{};
-          if(relations.currScale != undefined){
-            this.drawMapObj.diagram.scale = relations.currScale;
-          }
-          this.drawMapObj.resetPos();
-          let dataArr = data.nodeConfig.length > 10 ? JSON.parse(data.nodeConfig) : [];
-          this.drawMapObj.updateNodeDataArr(dataArr);
-          for (let i = dataArr.length - 1; i >= 0; i--) {
-            if(dataArr[i].category == "textTipsTemplate") continue;
-            if ((dataArr[i].pri_code == undefined) || (dataArr[i].pri_code == "") || (dataArr[i].pri_code == null)) {
-              this.drawMapObj.diagram.model.removeNodeData(dataArr[i]);
+          if(data == null){
+            this.drawMapObj.setBackgroundPicture("");
+            this.drawMapObj.updateNodeDataArr([]);
+          }else{
+
+            let relations = data.nodeMapping.length > 0 ?JSON.parse(data.nodeMapping):{};
+            if(relations.currScale != undefined){
+              this.drawMapObj.diagram.scale = relations.currScale;
             }
+            this.drawMapObj.resetPos();
+            let dataArr = data.nodeConfig.length > 0 ? JSON.parse(data.nodeConfig) : [];
+            this.drawMapObj.updateNodeDataArr(dataArr);
+            for (let i = dataArr.length - 1; i >= 0; i--) {
+              if(dataArr[i].category == "textTipsTemplate") continue;
+              if ((dataArr[i].pri_code == undefined) || (dataArr[i].pri_code == "") || (dataArr[i].pri_code == null)) {
+                this.drawMapObj.diagram.model.removeNodeData(dataArr[i]);
+              }
+            }
+            //add 标注当前活动区域
+            this.drawMapObj.addPrisonerIcon(this.nowActivePriCode);
+            this.drawMapObj.setBackgroundPicture(data.nodeMap);
+            this.drawMapObj.doSelectOnly();
+            this.drawMapObj.doShowOnly();
           }
-          //add 标注当前活动区域
-          this.drawMapObj.addPrisonerIcon(this.nowActivePriCode);
-          this.drawMapObj.setBackgroundPicture(data.nodeMap);
-          this.drawMapObj.doSelectOnly();
-          this.drawMapObj.doShowOnly();
         },
     },
     components: {
@@ -309,12 +323,20 @@ export default {
     text-align: right;
     display: inline-block;
  }
+ .el-tabs.el-tabs--top.el-tabs--border-card {
+   border: none;
+   height: 100%;
+ }
 </style>
 
 <style>
+  #position{
+    height: 100%;
+  }
   #position .el-tabs__header {
     padding: 0;
     position: relative;
+
   }
 
   #position .el-tabs__item {

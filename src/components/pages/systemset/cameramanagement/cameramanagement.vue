@@ -54,8 +54,10 @@
           <el-table-column prop="ciNearid"    label="相邻摄像头"      min-width="140px" align="center"></el-table-column>
           <el-table-column prop="realtimeUri" label="实时视频服务地址" min-width="140px" align="center"></el-table-column>
           <el-table-column prop="replayUri"   label="回放视频服务地址" min-width="140px" align="center"></el-table-column>
+          <el-table-column prop="ciKakou"     label="是否卡口摄像头"   min-width="85px" align="center"></el-table-column>
+          <el-table-column prop="ciMlmw"      label="卡口位置"        min-width="85px" align="center"></el-table-column>
           <el-table-column prop="ciMemo"      label="备注"            min-width="120px" align="center"></el-table-column>
-          <el-table-column label="操作"       fixed="right"           width="120px"     align="center">
+          <el-table-column label="操作"       fixed="right"           width="80px"     align="center">
             <template slot-scope="scope">
               <el-button @click.native.prevent="showVideo(scope.$index, scope.row)" type="text">实时视频</el-button>
             </template>
@@ -275,7 +277,7 @@
     line-height: 32px;
     margin-left: 10px;
 
-    font-size: 10px;
+    font-size: 12px;
     border-radius: 3px;
     text-align: center;
     display: inline-block;
